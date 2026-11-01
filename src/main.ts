@@ -5,10 +5,16 @@ import { createApp } from 'vue'
 
 import App from './App.vue'
 import router from './router'
+import { installExitGuard } from './router/exit-guard'
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 
-app.mount('#app')
+// Set up the history before the first render, so nothing flickers.
+router
+  .isReady()
+  .then(() => installExitGuard(router))
+  .catch((error: unknown) => console.error(error))
+  .finally(() => app.mount('#app'))

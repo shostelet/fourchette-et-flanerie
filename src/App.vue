@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
+import AppToast from '@/components/common/AppToast.vue'
 import { useAppDataStore } from '@/stores/app-data'
 import { usePreferencesStore } from '@/stores/preferences'
 
@@ -26,4 +27,5 @@ onMounted(() => {
     Impossible de charger les données enregistrées sur cet appareil.
   </div>
   <RouterView v-else />
+  <AppToast />
 </template>
