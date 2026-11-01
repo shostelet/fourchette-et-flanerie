@@ -7,6 +7,8 @@
  *    shadcn-vue components (--primary, --background…). The selector is more
  *    specific than shadcn's `:root`, so it wins whatever the import order.
  *    The accent color follows the active category (attribute set by App.vue).
+ * 3. Any element can also carry `data-category` to use the accent of a given
+ *    category, whatever the active one (place card, mixed lists…).
  *
  * Text colors are chosen for a WCAG AA contrast (≥ 4.5:1) on their background.
  */
@@ -42,6 +44,19 @@ html[data-category] {
 }
 
 html[data-category='stroll'] {
+  --primary: #5f7244;
+  --ring: #5f7244;
+  --accent: #e6eadc;
+}
+
+/* Element-level accents (custom properties are inherited by children). */
+[data-category='food'] {
+  --primary: #b5532f;
+  --ring: #b5532f;
+  --accent: #f1e3d6;
+}
+
+[data-category='stroll'] {
   --primary: #5f7244;
   --ring: #5f7244;
   --accent: #e6eadc;

@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { Database, Download, FileUp, Sparkles, Trash2, X } from '@lucide/vue'
-import { ref } from 'vue'
+import { ClipboardCheck, Database, Download, FileUp, Sparkles, Trash2, X } from '@lucide/vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
 import { useToast } from '@/composables/useToast'
 import { useImportExport } from '@/features/import-export/useImportExport'
+import { needsReview } from '@/domain/review'
 import { useAppDataStore } from '@/stores/app-data'
+import { usePlacesStore } from '@/stores/places'
 import { seedSampleData } from './dev-seed'
 
 const close = useCloseOverlay()
@@ -14,9 +16,11 @@ const appData = useAppDataStore()
 const { exportAll } = useImportExport()
 const toast = useToast()
 const busy = ref(false)
+const places = usePlacesStore()
+const toReviewCount = computed(() => places.items.filter(needsReview).length)
 
 /** Entries arriving in the next steps. */
-const upcoming = ['Ajouter un lieu', 'Passer en revue', 'Gérer les tags', 'Adresse de la maison']
+const upcoming = ['Ajouter un lieu', 'Gérer les tags', 'Adresse de la maison']
 
 const itemClass =
   'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
@@ -62,6 +66,18 @@ function wipe(): void {
       </div>
 
       <ul class="space-y-1">
+        <li>
+          <RouterLink :to="{ name: 'review' }" :class="itemClass">
+            <ClipboardCheck class="size-4 text-primary" aria-hidden="true" />
+            Passer en revue
+            <span
+              v-if="toReviewCount"
+              class="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground"
+            >
+              {{ toReviewCount }}
+            </span>
+          </RouterLink>
+        </li>
         <li>
           <RouterLink :to="{ name: 'import' }" :class="itemClass">
             <FileUp class="size-4 text-primary" aria-hidden="true" />

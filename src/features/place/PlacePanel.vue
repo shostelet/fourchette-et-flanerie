@@ -28,6 +28,7 @@ watchEffect(() => {
   <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-3">
     <article
       v-if="place"
+      :data-category="place.category"
       class="pointer-events-auto mx-auto flex max-w-md items-start gap-3 rounded-xl bg-card p-4 shadow-xl"
     >
       <span

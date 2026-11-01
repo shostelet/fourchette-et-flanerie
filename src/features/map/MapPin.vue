@@ -9,8 +9,10 @@ withDefaults(
     /** Shows the "?" badge (never been there). */
     toTest?: boolean
     variant?: 'place' | 'home'
+    /** Bigger, with a halo: the place currently focused (e.g. in review). */
+    highlighted?: boolean
   }>(),
-  { toTest: false, variant: 'place' },
+  { toTest: false, variant: 'place', highlighted: false },
 )
 </script>
 
@@ -20,7 +22,13 @@ withDefaults(
     :title="label"
     :aria-label="toTest ? `${label} (à tester)` : label"
     class="relative flex cursor-pointer flex-col items-center drop-shadow-md transition-transform hover:scale-110 focus-visible:scale-110 focus-visible:outline-none"
+    :class="{ 'z-10 scale-125': highlighted }"
   >
+    <span
+      v-if="highlighted"
+      class="absolute top-0 size-9 animate-ping rounded-full bg-primary/40"
+      aria-hidden="true"
+    />
     <span
       class="flex size-9 items-center justify-center rounded-full border-2 border-card"
       :class="variant === 'home' ? 'bg-ink text-cream' : 'bg-primary text-primary-foreground'"

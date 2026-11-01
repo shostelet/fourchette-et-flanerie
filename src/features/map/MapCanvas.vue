@@ -20,7 +20,7 @@ import { usePreferencesStore } from '@/stores/preferences'
 import LocateButton from './LocateButton.vue'
 import MapPin from './MapPin.vue'
 import UserLocationDot from './UserLocationDot.vue'
-import { useMapController } from './map-controller'
+import { useMapController, type MapFocus } from './map-controller'
 import { useMapMarkers } from './useMapMarkers'
 
 // MapLibre parses tiles in a Web Worker; Vite needs to know where it is.
@@ -95,6 +95,17 @@ useMapMarkers<Home>(() => (home.value ? [home.value] : []), {
   version: (value) => `${value.location.lat},${value.location.lng}`,
   position: (value) => value.location,
   render: () => h(MapPin, { icon: 'house', label: 'Maison', variant: 'home' }),
+})
+
+// Place highlighted by a panel (review…), drawn on top with its own category color.
+useMapMarkers<MapFocus>(() => (controller.focus.value ? [controller.focus.value] : []), {
+  key: () => 'focus',
+  version: (f) => `${f.location.lat},${f.location.lng},${f.icon},${f.category}`,
+  position: (f) => f.location,
+  render: (f) =>
+    h('div', { 'data-category': f.category }, [
+      h(MapPin, { icon: f.icon, label: f.label, highlighted: true }),
+    ]),
 })
 
 useMapMarkers<GeoPoint>(() => (position.value ? [position.value] : []), {

@@ -2,6 +2,7 @@
 import { CircleCheck, FileUp, TriangleAlert } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import SheetPanel from '@/components/common/SheetPanel.vue'
 import { Button } from '@/components/ui/button'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
@@ -14,6 +15,7 @@ import { usePlacesStore } from '@/stores/places'
 import { useImportExport, type LoadedImport } from './useImportExport'
 
 const close = useCloseOverlay()
+const router = useRouter()
 const { load, applyMapstr, replaceAll } = useImportExport()
 const { home } = storeToRefs(useHomeStore())
 const places = usePlacesStore()
@@ -118,9 +120,14 @@ function restart(): void {
       <CircleCheck class="size-12 text-primary" aria-hidden="true" />
       <p class="text-lg font-semibold">{{ done.saved }} lieu{{ done.saved > 1 ? 'x' : '' }} importé{{ done.saved > 1 ? 's' : '' }}</p>
       <p v-if="done.toReview" class="text-muted-foreground">
-        Dont {{ done.toReview }} à vérifier lors du passage en revue (prochaine étape).
+        Dont {{ done.toReview }} à vérifier lors du passage en revue.
       </p>
-      <Button class="mt-4" @click="close">Terminer</Button>
+      <div class="mt-4 flex gap-2">
+        <Button variant="ghost" @click="close">Terminer</Button>
+        <Button v-if="done.toReview" @click="router.replace({ name: 'review' })">
+          Passer en revue
+        </Button>
+      </div>
     </div>
 
     <!-- Pick a file -->

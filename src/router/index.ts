@@ -27,6 +27,11 @@ const router = createRouter({
           component: () => import('@/features/import-export/ImportPanel.vue'),
         },
         {
+          path: 'review',
+          name: 'review',
+          component: () => import('@/features/review/ReviewPanel.vue'),
+        },
+        {
           path: 'place/:id',
           name: 'place',
           component: () => import('@/features/place/PlacePanel.vue'),
