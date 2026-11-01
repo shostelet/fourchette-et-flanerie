@@ -1,0 +1,48 @@
+/*
+ * Charte « Méditerranée ».
+ *
+ * 1. `@theme` registers our own colors as Tailwind tokens:
+ *    they become both CSS variables and classes (bg-terracotta, text-olive…).
+ * 2. The `html[data-category]` blocks override the variables used by the
+ *    shadcn-vue components (--primary, --background…). The selector is more
+ *    specific than shadcn's `:root`, so it wins whatever the import order.
+ *    The accent color follows the active category (attribute set by App.vue).
+ *
+ * Text colors are chosen for a WCAG AA contrast (≥ 4.5:1) on their background.
+ */
+
+@theme {
+  --color-cream: #f6f1ea;
+  --color-ink: #2b2a28;
+  --color-terracotta: #c65d3b;
+  --color-terracotta-strong: #b5532f;
+  --color-olive: #6b7f4e;
+  --color-olive-strong: #5f7244;
+}
+
+html[data-category] {
+  --background: #f6f1ea;
+  --foreground: #2b2a28;
+  --card: #fffdf9;
+  --card-foreground: #2b2a28;
+  --popover: #fffdf9;
+  --popover-foreground: #2b2a28;
+  --primary: #b5532f;
+  --primary-foreground: #fffdf9;
+  --secondary: #ede5d9;
+  --secondary-foreground: #2b2a28;
+  --muted: #ece4d8;
+  --muted-foreground: #625b53;
+  --accent: #f1e3d6;
+  --accent-foreground: #2b2a28;
+  --destructive: #b42318;
+  --border: #e3d9cb;
+  --input: #d9cdbc;
+  --ring: #b5532f;
+}
+
+html[data-category='stroll'] {
+  --primary: #5f7244;
+  --ring: #5f7244;
+  --accent: #e6eadc;
+}
