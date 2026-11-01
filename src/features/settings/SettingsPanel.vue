@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import { Database, Sparkles, Trash2, X } from '@lucide/vue'
+import { Database, Download, FileUp, Sparkles, Trash2, X } from '@lucide/vue'
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
+import { useToast } from '@/composables/useToast'
+import { useImportExport } from '@/features/import-export/useImportExport'
 import { useAppDataStore } from '@/stores/app-data'
 import { seedSampleData } from './dev-seed'
 
 const close = useCloseOverlay()
 const appData = useAppDataStore()
+const { exportAll } = useImportExport()
+const toast = useToast()
 const busy = ref(false)
 
 /** Entries arriving in the next steps. */
-const upcoming = [
-  'Ajouter un lieu',
-  'Passer en revue',
-  'Gérer les tags',
-  'Importer depuis Mapstr',
-  'Exporter / importer mes données',
-  'Adresse de la maison',
-]
+const upcoming = ['Ajouter un lieu', 'Passer en revue', 'Gérer les tags', 'Adresse de la maison']
+
+const itemClass =
+  'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
 
 async function run(action: () => Promise<void>): Promise<void> {
   busy.value = true
@@ -27,6 +28,11 @@ async function run(action: () => Promise<void>): Promise<void> {
   } finally {
     busy.value = false
   }
+}
+
+function exportData(): void {
+  exportAll()
+  toast.show('Export téléchargé')
 }
 
 function addSamples(): void {
@@ -56,6 +62,18 @@ function wipe(): void {
       </div>
 
       <ul class="space-y-1">
+        <li>
+          <RouterLink :to="{ name: 'import' }" :class="itemClass">
+            <FileUp class="size-4 text-primary" aria-hidden="true" />
+            Importer un fichier
+          </RouterLink>
+        </li>
+        <li>
+          <button type="button" :class="itemClass" @click="exportData">
+            <Download class="size-4 text-primary" aria-hidden="true" />
+            Exporter mes données
+          </button>
+        </li>
         <li
           v-for="label in upcoming"
           :key="label"

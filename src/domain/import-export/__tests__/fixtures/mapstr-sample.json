@@ -1,0 +1,439 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.85,
+          45.76
+        ]
+      },
+      "properties": {
+        "name": "Maison",
+        "address": "1 Rue de l'Exemple, 69003 Lyon, France",
+        "icon": "home",
+        "tags": [
+          {
+            "name": "Maison",
+            "color": "#204c98"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.834662914276123,
+          45.775657653808594
+        ]
+      },
+      "properties": {
+        "name": "Cochon Iodé",
+        "address": "13 Rue d'Austerlitz, 69004 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Tapas",
+            "color": "#80405f"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8507103,
+          45.7685533
+        ]
+      },
+      "properties": {
+        "name": "Sauce Poulette",
+        "address": "125 Rue de Sèze, 69006 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Brasserie",
+            "color": "#5d8040"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.844600199999999,
+          45.7591382
+        ]
+      },
+      "properties": {
+        "name": "Arsenic",
+        "address": "132 Rue Pierre Corneille, 69003 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "Midi",
+            "color": "#803030"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.847636799999999,
+          45.76641719999999
+        ]
+      },
+      "properties": {
+        "name": "Agastache Restaurant",
+        "address": "134 Rue Duguesclin, 69006 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "BIB",
+            "color": "#dc1818"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8346759,
+          45.7645473
+        ]
+      },
+      "properties": {
+        "name": "Le Musée",
+        "address": "2 Rue des Forces, 69002 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "Bouchon",
+            "color": "#995d2e"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.856383199999999,
+          45.76826090000001
+        ]
+      },
+      "properties": {
+        "name": "L'Artchimiste",
+        "address": "22 Rue Professeur Weill, 69006 Lyon, France",
+        "icon": "bar",
+        "tags": [
+          {
+            "name": "Bar",
+            "color": "#405580"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.85153,
+          45.75221
+        ]
+      },
+      "properties": {
+        "name": "Gojo Restaurant Éthiopien (Gojo)",
+        "address": "327 Rue André Philip, 69003 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Africain",
+            "color": "#000000"
+          },
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8273101,
+          45.7660501
+        ]
+      },
+      "properties": {
+        "name": "Made In Berliner",
+        "address": "2 Place Saint-Paul, 69005 Lyon, France",
+        "icon": "restaurant",
+        "userComment": "kebab",
+        "tags": [
+          {
+            "name": "Sandwich",
+            "color": "#188517"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8564468,
+          45.7683769
+        ]
+      },
+      "properties": {
+        "name": "CoCotto 陶禧",
+        "address": "2 Rue Professeur Weill, 69006 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Asiatique",
+            "color": "#d2cf6a"
+          },
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8319962,
+          45.7627773
+        ]
+      },
+      "properties": {
+        "name": "Lupo",
+        "address": "28 Quai Saint-Antoine, 69002 Lyon, France",
+        "icon": "supermarket",
+        "tags": [
+          {
+            "name": "Italien",
+            "color": "#1ac7ea"
+          },
+          {
+            "name": "Sandwich",
+            "color": "#188517"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8316954,
+          45.7595294
+        ]
+      },
+      "properties": {
+        "name": "Monsieur P",
+        "address": "8 Place des Célestins, 69002 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "BIB",
+            "color": "#dc1818"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8500652,
+          45.7673033
+        ]
+      },
+      "properties": {
+        "name": "MACHETE",
+        "address": "155 Rue Cuvier, 69006 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Asiatique",
+            "color": "#d2cf6a"
+          },
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.850888729095459,
+          45.76869583129883
+        ]
+      },
+      "properties": {
+        "name": "Béguin - Bar à manger",
+        "address": "73 Rue de Sèze, 69006 Lyon, France",
+        "icon": "bar",
+        "tags": [
+          {
+            "name": "Bar",
+            "color": "#405580"
+          },
+          {
+            "name": "Tapas",
+            "color": "#80405f"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.831583399999999,
+          45.769419
+        ]
+      },
+      "properties": {
+        "name": "TechNoir",
+        "address": "118 Montée de la Grande Côte, 69001 Lyon, France",
+        "icon": "beer",
+        "tags": [
+          {
+            "name": "Bar",
+            "color": "#405580"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.8371586,
+          45.7665844
+        ]
+      },
+      "properties": {
+        "name": "Fufu Ramen",
+        "address": "36 Rue de l'Arbre Sec, 69001 Lyon, France",
+        "icon": "restaurant",
+        "tags": [
+          {
+            "name": "Japonais",
+            "color": "#e62a2a"
+          },
+          {
+            "name": "Ramen",
+            "color": "#408078"
+          },
+          {
+            "name": "Restaurant",
+            "color": "#ff5161"
+          },
+          {
+            "name": "À essayer",
+            "color": "#6edf38"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.847175999999999,
+          45.758152
+        ]
+      },
+      "properties": {
+        "name": "Mademoiselle reve",
+        "address": "215 Rue Vendôme, 69003 Lyon, France",
+        "icon": "bar",
+        "tags": [
+          {
+            "name": "Bar",
+            "color": "#405580"
+          }
+        ]
+      }
+    }
+  ]
+}
