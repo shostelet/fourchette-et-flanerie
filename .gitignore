@@ -44,3 +44,6 @@ __screenshots__/
 !.yarn/releases
 !.yarn/plugins
 .pnp.*
+
+# Personal data exports (Mapstr, Fourchette): never commit
+private/
