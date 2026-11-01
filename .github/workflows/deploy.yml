@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # Automatic caching would call Yarn before Corepack is enabled.
+          package-manager-cache: false
 
       # Yarn 4, at the exact version pinned in package.json ("packageManager").
       - name: Enable Corepack
