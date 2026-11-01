@@ -5,6 +5,8 @@ import { isMapViewFresh, type MapView } from '@/domain/map-view'
 import { CATEGORIES, type Category } from '@/domain/models'
 import { readJson, writeJson } from '@/utils/local-storage'
 
+export type PlaceViewMode = 'compact' | 'expanded'
+
 /**
  * Device-only preferences, kept in localStorage and never exported:
  * they describe this phone or this computer, not the user's data.
@@ -18,6 +20,12 @@ export const usePreferencesStore = defineStore('preferences', () => {
   )
   watch(activeCategory, (value) => writeJson('activeCategory', value))
 
+  /** Last mode chosen for the place detail: it opens the same way next time. */
+  const placeView = ref<PlaceViewMode>(
+    readJson<string>('placeView', 'expanded') === 'compact' ? 'compact' : 'expanded',
+  )
+  watch(placeView, (value) => writeJson('placeView', value))
+
   const lastMapView = ref<MapView | undefined>(readJson<MapView | undefined>('lastMapView', undefined))
 
   function saveMapView(view: Omit<MapView, 'savedAt'>): void {
@@ -30,5 +38,5 @@ export const usePreferencesStore = defineStore('preferences', () => {
     return isMapViewFresh(lastMapView.value, now) ? lastMapView.value : undefined
   }
 
-  return { activeCategory, lastMapView, saveMapView, restorableMapView }
+  return { activeCategory, placeView, lastMapView, saveMapView, restorableMapView }
 })
