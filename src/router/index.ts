@@ -20,6 +20,12 @@ const router = createRouter({
           name: 'settings',
           component: () => import('@/features/settings/SettingsPanel.vue'),
         },
+        {
+          path: 'place/:id',
+          name: 'place',
+          component: () => import('@/features/place/PlacePanel.vue'),
+          props: true,
+        },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },

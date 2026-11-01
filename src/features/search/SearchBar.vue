@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { House, Search, X } from '@lucide/vue'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
+import { useMapController } from '@/features/map/map-controller'
+import { useHomeStore } from '@/stores/home'
 
 // Local for now; moves to a search store with the search feature (step 8).
 const query = ref('')
+
+const { home } = storeToRefs(useHomeStore())
+const { flyTo } = useMapController()
+
+function centerOnHome(): void {
+  if (home.value) flyTo(home.value.location)
+}
 </script>
 
 <template>
@@ -35,13 +45,13 @@ const query = ref('')
         <X class="size-4" />
       </button>
     </label>
-    <!-- Enabled with the map (step 2). -->
     <Button
       variant="secondary"
       size="icon"
       class="shrink-0 rounded-full"
-      aria-label="Recentrer sur la maison"
-      disabled
+      :aria-label="home ? 'Recentrer sur la maison' : 'Adresse de la maison non définie'"
+      :disabled="!home"
+      @click="centerOnHome"
     >
       <House />
     </Button>
