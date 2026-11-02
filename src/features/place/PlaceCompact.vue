@@ -3,7 +3,6 @@ import { Maximize2, X } from '@lucide/vue'
 import AppIcon from '@/components/common/AppIcon.vue'
 import RatingSummary from '@/components/common/RatingSummary.vue'
 import { Button } from '@/components/ui/button'
-import { CATEGORY_DEFINITIONS } from '@/config/categories'
 import type { Place } from '@/domain/models'
 import { isClosed, isToTest } from '@/domain/places'
 import type { PlaceRatings } from '@/domain/ratings'
@@ -25,13 +24,16 @@ const emit = defineEmits<{ expand: []; close: [] }>()
         <AppIcon :name="place.icon" class="size-5" />
       </button>
       <button type="button" class="min-w-0 flex-1 text-left" @click="emit('expand')">
-        <h2 class="truncate text-base font-semibold">{{ place.name }}</h2>
+        <!-- The name shrinks (ellipsis), the status never does. -->
+        <h2 class="flex min-w-0 items-baseline gap-2">
+          <span class="truncate text-base font-semibold">{{ place.name }}</span>
+          <!-- A closed place can't be tested anymore: only "Fermé" is shown. -->
+          <span v-if="isClosed(place)" class="shrink-0 text-xs font-medium text-destructive">Fermé</span>
+          <span v-else-if="isToTest(place)" class="shrink-0 text-xs font-medium text-primary">
+            À tester
+          </span>
+        </h2>
         <p class="truncate text-sm text-muted-foreground">{{ place.address }}</p>
-        <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span>{{ CATEGORY_DEFINITIONS[place.category].label }}</span>
-          <span v-if="isClosed(place)" class="font-medium text-destructive">Fermé</span>
-          <span v-else-if="isToTest(place)" class="font-medium text-primary">À tester</span>
-        </p>
       </button>
       <div class="-mt-1 -mr-1 flex">
         <Button variant="ghost" size="icon" class="rounded-full" aria-label="Fiche complète" @click="emit('expand')">

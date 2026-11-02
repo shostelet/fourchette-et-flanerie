@@ -26,7 +26,8 @@ withDefaults(
   >
     <span
       v-if="highlighted"
-      class="absolute top-0 size-9 animate-ping rounded-full bg-primary/40"
+      class="absolute top-0 size-9 animate-ping rounded-full"
+      :class="variant === 'home' ? 'bg-ink/40' : 'bg-primary/40'"
       aria-hidden="true"
     />
     <span

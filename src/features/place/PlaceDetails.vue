@@ -137,7 +137,14 @@ function remove(): void {
       </ul>
 
       <!-- Status -->
-      <div role="radiogroup" aria-label="Statut" class="flex rounded-full bg-muted p-1">
+      <!-- Read-only once closed: the status stays visible, but can't change anymore. -->
+      <div
+        role="radiogroup"
+        aria-label="Statut"
+        :aria-disabled="closed"
+        class="flex rounded-full bg-muted p-1"
+        :class="{ 'opacity-60': closed }"
+      >
         <button
           v-for="option in [
             { visited: false, label: 'À tester' },
@@ -147,12 +154,12 @@ function remove(): void {
           type="button"
           role="radio"
           :aria-checked="place.visited === option.visited"
-          :disabled="busy"
-          class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors"
+          :disabled="busy || closed"
+          class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed"
           :class="
             place.visited === option.visited
               ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-muted-foreground enabled:hover:text-foreground'
           "
           @click="setVisited(option.visited)"
         >

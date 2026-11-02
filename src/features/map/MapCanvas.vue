@@ -85,7 +85,8 @@ useMapMarkers<Place>(() => places.activeIn(activeCategory.value), {
   // gesture then returns to the map.
   onClick: (p) => {
     const target = { name: 'place', params: { id: p.id } }
-    if (router.currentRoute.value.name === 'place') void router.replace(target)
+    const current = router.currentRoute.value.name
+    if (current === 'place' || current === 'home') void router.replace(target)
     else void router.push(target)
   },
 })
@@ -95,16 +96,20 @@ useMapMarkers<Home>(() => (home.value ? [home.value] : []), {
   version: (value) => `${value.location.lat},${value.location.lng}`,
   position: (value) => value.location,
   render: () => h(MapPin, { icon: 'house', label: 'Maison', variant: 'home' }),
+  onClick: () => {
+    if (router.currentRoute.value.name === 'place') void router.replace({ name: 'home' })
+    else if (router.currentRoute.value.name !== 'home') void router.push({ name: 'home' })
+  },
 })
 
 // Place highlighted by a panel (review…), drawn on top with its own category color.
 useMapMarkers<MapFocus>(() => (controller.focus.value ? [controller.focus.value] : []), {
   key: () => 'focus',
-  version: (f) => `${f.location.lat},${f.location.lng},${f.icon},${f.category}`,
+  version: (f) => `${f.location.lat},${f.location.lng},${f.icon},${f.category},${f.variant}`,
   position: (f) => f.location,
   render: (f) =>
     h('div', { 'data-category': f.category }, [
-      h(MapPin, { icon: f.icon, label: f.label, highlighted: true }),
+      h(MapPin, { icon: f.icon, label: f.label, variant: f.variant, highlighted: true }),
     ]),
 })
 

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppIcon from '@/components/common/AppIcon.vue'
-import { CATEGORY_DEFINITIONS } from '@/config/categories'
 import type { Place, Tag } from '@/domain/models'
 import { useTagsStore } from '@/stores/tags'
 
-/** The "main" tag (category) first, then the user's tags. */
+/** The user's tags (the category is already given by the colors and the header). */
 const props = defineProps<{ place: Place }>()
 
 const tags = useTagsStore()
@@ -15,13 +13,7 @@ const placeTags = computed(() =>
 </script>
 
 <template>
-  <ul class="flex flex-wrap gap-1" aria-label="Tags">
-    <li
-      class="flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-sm text-primary-foreground"
-    >
-      <AppIcon :name="CATEGORY_DEFINITIONS[place.category].icon" class="size-3.5" />
-      {{ CATEGORY_DEFINITIONS[place.category].label }}
-    </li>
+  <ul v-if="placeTags.length" class="flex flex-wrap gap-1" aria-label="Tags">
     <li
       v-for="tag in placeTags"
       :key="tag.id"

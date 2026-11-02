@@ -9,6 +9,8 @@ export interface MapFocus {
   icon: string
   label: string
   category: Category
+  /** Home is drawn with its own dark pin. */
+  variant?: 'place' | 'home'
 }
 
 export interface FlyToOptions {
