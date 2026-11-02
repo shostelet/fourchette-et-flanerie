@@ -1,45 +1,40 @@
 <script setup lang="ts">
-import { Check, CircleCheck, Copy, Plus, X } from '@lucide/vue'
+import { CircleCheck, Copy, X } from '@lucide/vue'
 import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 import AppIcon from '@/components/common/AppIcon.vue'
+import IconPicker from '@/components/common/IconPicker.vue'
 import RatingInput from '@/components/common/RatingInput.vue'
 import { Button } from '@/components/ui/button'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
 import { CATEGORY_DEFINITIONS } from '@/config/categories'
 import { PLACE_ICONS } from '@/config/place-icons'
 import { CRITERION_LABELS } from '@/config/ratings'
-import { nextTagColor } from '@/config/tag-colors'
-import { CATEGORIES, type Category, type Tag } from '@/domain/models'
+import { CATEGORIES, type Category } from '@/domain/models'
 import { findDuplicate } from '@/domain/places'
 import {
   correctionsFor,
-  toggleTag,
   withCategory,
   type ReviewCorrections,
   type ReviewDecision,
 } from '@/domain/review'
 import { useMapController } from '@/features/map/map-controller'
 import { usePlacesStore } from '@/stores/places'
-import { useTagsStore } from '@/stores/tags'
+import TagPicker from '@/features/tags/TagPicker.vue'
 import { useReviewSession, type QuickVisit } from './useReviewSession'
 
 const REVIEW_ZOOM = 16
 
 const close = useCloseOverlay()
 const places = usePlacesStore()
-const tags = useTagsStore()
 const { flyTo, setFocus } = useMapController()
 const { current, total, reviewedCount, remaining, onlySkippedLeft, decide, mergeInto, retrySkipped } =
   useReviewSession()
 
 const sheet = useTemplateRef<HTMLElement>('sheet')
 const body = useTemplateRef<HTMLElement>('body')
-const tagInput = useTemplateRef<HTMLInputElement>('tagInput')
 const draft = ref<ReviewCorrections>()
 const visit = ref<QuickVisit>({})
 const showVisitForm = ref(false)
-const addingTag = ref(false)
-const newTagName = ref('')
 const busy = ref(false)
 
 // A new place: reset the card and move the map to it.
@@ -50,8 +45,6 @@ watch(
     draft.value = place ? correctionsFor(place) : undefined
     visit.value = {}
     showVisitForm.value = false
-    addingTag.value = false
-    newTagName.value = ''
     body.value?.scrollTo({ top: 0 })
     if (place) {
       flyTo(place.location, REVIEW_ZOOM, { bottomPadding: sheet.value?.offsetHeight ?? 0 })
@@ -79,52 +72,17 @@ const lookalike = computed(() => {
   return place ? findDuplicate(place, places.items.filter((p) => p.id !== place.id)) : undefined
 })
 
-/** Tags of the selected category, plus the selected ones (even from the other category). */
-const tagChoices = computed<Tag[]>(() => {
-  const corrections = draft.value
-  if (!corrections) return []
-  const own = tags.forCategory(corrections.category)
-  const carried = corrections.tagIds
-    .map((id) => tags.byId.get(id))
-    .filter((t): t is Tag => t !== undefined && t.category !== corrections.category)
-  return [...carried, ...own]
-})
-
 // Card edits (functions rather than inline handlers, for type narrowing).
 function setCategory(category: Category): void {
   if (draft.value) draft.value = withCategory(draft.value, category)
 }
 
-function setIcon(icon: string): void {
-  if (draft.value) draft.value = { ...draft.value, icon }
+function setIcon(icon: string | undefined): void {
+  if (draft.value && icon) draft.value = { ...draft.value, icon }
 }
 
-function onToggleTag(tagId: string): void {
-  if (draft.value) draft.value = toggleTag(draft.value, tagId)
-}
-
-async function startAddingTag(): Promise<void> {
-  addingTag.value = true
-  await nextTick()
-  tagInput.value?.focus()
-}
-
-/** Creates the tag (or reuses one with the same name) and selects it. */
-async function addTag(): Promise<void> {
-  const name = newTagName.value.trim()
-  const corrections = draft.value
-  if (name && corrections) {
-    const tag = await tags.create({
-      category: corrections.category,
-      name,
-      color: nextTagColor(tags.items),
-    })
-    if (draft.value && !draft.value.tagIds.includes(tag.id)) {
-      draft.value = toggleTag(draft.value, tag.id)
-    }
-  }
-  newTagName.value = ''
-  addingTag.value = false
+function setTags(tagIds: string[]): void {
+  if (draft.value) draft.value = { ...draft.value, tagIds }
 }
 
 async function openVisitForm(): Promise<void> {
@@ -270,71 +228,18 @@ const chip = (selected: boolean) =>
               </button>
             </div>
 
-            <div role="radiogroup" aria-label="Icône" class="flex gap-1 overflow-x-auto pb-1">
-              <button
-                v-for="option in PLACE_ICONS[draft.category]"
-                :key="option.icon"
-                type="button"
-                role="radio"
-                :aria-checked="draft.icon === option.icon"
-                :aria-label="option.label"
-                :title="option.label"
-                class="flex size-10 shrink-0 items-center justify-center rounded-full border"
-                :class="chip(draft.icon === option.icon)"
-                @click="setIcon(option.icon)"
-              >
-                <AppIcon :name="option.icon" class="size-5" />
-              </button>
-            </div>
+            <IconPicker
+              :model-value="draft.icon"
+              :options="PLACE_ICONS[draft.category]"
+              label="Icône"
+              @update:model-value="setIcon"
+            />
 
-            <div class="flex flex-wrap items-center gap-1" aria-label="Tags">
-              <button
-                v-for="tag in tagChoices"
-                :key="tag.id"
-                type="button"
-                :aria-pressed="draft.tagIds.includes(tag.id)"
-                class="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm"
-                :class="chip(draft.tagIds.includes(tag.id))"
-                @click="onToggleTag(tag.id)"
-              >
-                <span class="size-2.5 rounded-full" :style="{ backgroundColor: tag.color }" aria-hidden="true" />
-                {{ tag.name }}
-              </button>
-
-              <!-- New tag -->
-              <form
-                v-if="addingTag"
-                class="flex items-center gap-1 rounded-full border border-primary bg-background py-0.5 pr-0.5 pl-3"
-                @submit.prevent="addTag"
-              >
-                <input
-                  ref="tagInput"
-                  v-model="newTagName"
-                  type="text"
-                  enterkeyhint="done"
-                  placeholder="Nouveau tag"
-                  aria-label="Nom du nouveau tag"
-                  class="w-32 bg-transparent text-sm outline-none"
-                  @keydown.esc="addingTag = false"
-                />
-                <button
-                  type="submit"
-                  class="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                  aria-label="Ajouter le tag"
-                >
-                  <Check class="size-3.5" />
-                </button>
-              </form>
-              <button
-                v-else
-                type="button"
-                class="flex items-center gap-1 rounded-full border border-dashed border-input px-2.5 py-1 text-sm text-muted-foreground hover:text-foreground"
-                @click="startAddingTag"
-              >
-                <Plus class="size-3.5" aria-hidden="true" />
-                Tag
-              </button>
-            </div>
+            <TagPicker
+              :model-value="draft.tagIds"
+              :category="draft.category"
+              @update:model-value="setTags"
+            />
           </div>
         </div>
 

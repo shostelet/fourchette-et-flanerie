@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { mergeIntoExisting } from '@/domain/import-export/mapstr'
-import type { Category, Id, Place, Rating } from '@/domain/models'
+import type { Id, Place, Rating } from '@/domain/models'
 import { reviewPatch, reviewQueue, type ReviewCorrections, type ReviewDecision } from '@/domain/review'
 import { usePlacesStore } from '@/stores/places'
 import { useTagsStore } from '@/stores/tags'
@@ -32,25 +32,6 @@ export function useReviewSession() {
     () => remaining.value > 0 && queue.value.every((p) => skipped.value.has(p.id)),
   )
 
-  /**
-   * Tags must belong to the place's category: when the category changed,
-   * each tag is replaced by the tag with the same name in the new category
-   * (created if needed, with the same color).
-   */
-  async function tagsForCategory(tagIds: readonly Id[], category: Category): Promise<Id[]> {
-    const result: Id[] = []
-    for (const id of tagIds) {
-      const tag = tags.byId.get(id)
-      if (!tag) continue
-      if (tag.category === category) result.push(id)
-      else {
-        const moved = await tags.create({ category, name: tag.name, color: tag.color, icon: tag.icon })
-        result.push(moved.id)
-      }
-    }
-    return result
-  }
-
   async function decide(
     decision: ReviewDecision,
     corrections: ReviewCorrections,
@@ -59,7 +40,7 @@ export function useReviewSession() {
     const place = current.value
     if (!place) return
 
-    const tagIds = await tagsForCategory(corrections.tagIds, corrections.category)
+    const tagIds = await tags.moveToCategory(corrections.tagIds, corrections.category)
     await places.update(place.id, reviewPatch(decision, { ...corrections, tagIds }))
 
     const hasVisitContent = visit.quality || visit.value || visit.comment?.trim()
@@ -78,7 +59,7 @@ export function useReviewSession() {
     const place = current.value
     if (!place || place.id === target.id) return
 
-    const tagIds = await tagsForCategory(corrections.tagIds, target.category)
+    const tagIds = await tags.moveToCategory(corrections.tagIds, target.category)
     const merged = mergeIntoExisting(target, { ...place, tagIds })
     await places.update(target.id, {
       tagIds: merged.tagIds,

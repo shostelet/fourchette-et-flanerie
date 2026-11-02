@@ -53,7 +53,13 @@ onBeforeUnmount(() => setFocus(undefined))
         <h2 class="text-base font-semibold">La maison</h2>
         <p class="truncate text-sm text-muted-foreground">{{ home.address }}</p>
       </div>
-      <Button variant="ghost" size="icon" class="-mt-1 -mr-1 rounded-full" aria-label="Fermer" @click="close">
+      <Button
+        variant="ghost"
+        size="icon"
+        class="-mt-1 -mr-1 rounded-full hover:bg-ink/10 hover:text-ink"
+        aria-label="Fermer"
+        @click="close"
+      >
         <X />
       </Button>
     </article>

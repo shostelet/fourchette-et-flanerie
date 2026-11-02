@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { ClipboardCheck, Database, Download, FileUp, Sparkles, Trash2, X } from '@lucide/vue'
+import {
+  ClipboardCheck,
+  Database,
+  Download,
+  FileUp,
+  MapPinPlus,
+  Sparkles,
+  Tags,
+  Trash2,
+  X,
+} from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Button } from '@/components/ui/button'
@@ -20,7 +30,7 @@ const places = usePlacesStore()
 const toReviewCount = computed(() => places.items.filter(needsReview).length)
 
 /** Entries arriving in the next steps. */
-const upcoming = ['Ajouter un lieu', 'Gérer les tags', 'Adresse de la maison']
+const upcoming = ['Adresse de la maison']
 
 const itemClass =
   'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
@@ -66,6 +76,18 @@ function wipe(): void {
       </div>
 
       <ul class="space-y-1">
+        <li>
+          <RouterLink :to="{ name: 'place-new' }" replace :class="itemClass">
+            <MapPinPlus class="size-4 text-primary" aria-hidden="true" />
+            Ajouter un lieu
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink :to="{ name: 'tags' }" :class="itemClass">
+            <Tags class="size-4 text-primary" aria-hidden="true" />
+            Gérer les tags
+          </RouterLink>
+        </li>
         <li>
           <RouterLink :to="{ name: 'review' }" :class="itemClass">
             <ClipboardCheck class="size-4 text-primary" aria-hidden="true" />

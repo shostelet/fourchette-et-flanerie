@@ -37,6 +37,22 @@ const router = createRouter({
           component: () => import('@/features/place/HomePanel.vue'),
         },
         {
+          path: 'tags',
+          name: 'tags',
+          component: () => import('@/features/tags/TagsPanel.vue'),
+        },
+        {
+          path: 'place/new',
+          name: 'place-new',
+          component: () => import('@/features/place/PlaceEditor.vue'),
+        },
+        {
+          path: 'place/:id/edit',
+          name: 'place-edit',
+          component: () => import('@/features/place/PlaceEditor.vue'),
+          props: true,
+        },
+        {
           path: 'place/:id',
           name: 'place',
           component: () => import('@/features/place/PlacePanel.vue'),

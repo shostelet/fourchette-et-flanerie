@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { getRepositories } from '@/data'
 import { createTag, softDelete, touch, type TagDraft, type TagPatch } from '@/domain/entities'
 import type { Category, Id, Tag } from '@/domain/models'
+import { mergeTagIds } from '@/domain/tags'
 import { compareText, normalizeText } from '@/domain/text'
 import { usePlacesStore } from './places'
 
@@ -58,7 +59,8 @@ export const useTagsStore = defineStore('tags', () => {
   async function update(id: Id, patch: TagPatch): Promise<Tag> {
     const current = byId.value.get(id)
     if (!current) throw new Error(`Unknown tag: ${id}`)
-    return persist(touch({ ...current, ...patch }))
+    const name = patch.name?.trim()
+    return persist(touch({ ...current, ...patch, ...(name ? { name } : {}) }))
   }
 
   /** Soft delete, and detach the tag from every place. */
@@ -67,6 +69,36 @@ export const useTagsStore = defineStore('tags', () => {
     if (!current) return
     await persist(softDelete(current))
     await places.removeTagEverywhere(id)
+  }
+
+  /** Moves every place from `sourceId` to `targetId`, then deletes the source. */
+  async function merge(sourceId: Id, targetId: Id): Promise<void> {
+    const source = byId.value.get(sourceId)
+    if (!source || sourceId === targetId) return
+    for (const place of places.items) {
+      const tagIds = mergeTagIds(place.tagIds, sourceId, targetId)
+      if (tagIds) await places.update(place.id, { tagIds })
+    }
+    await persist(softDelete(source))
+  }
+
+  /**
+   * Tags must belong to their place's category: each tag of another category
+   * is replaced by the tag with the same name in `category` (created if
+   * needed, with the same color and icon).
+   */
+  async function moveToCategory(tagIds: readonly Id[], category: Category): Promise<Id[]> {
+    const result: Id[] = []
+    for (const id of tagIds) {
+      const tag = byId.value.get(id)
+      if (!tag) continue
+      if (tag.category === category) result.push(id)
+      else {
+        const moved = await create({ category, name: tag.name, color: tag.color, icon: tag.icon })
+        result.push(moved.id)
+      }
+    }
+    return [...new Set(result)]
   }
 
   /** Bulk insert (imports). */
@@ -80,5 +112,19 @@ export const useTagsStore = defineStore('tags', () => {
     loaded.value = false
   }
 
-  return { items, loaded, byId, forCategory, findByName, load, create, update, remove, saveMany, $reset }
+  return {
+    items,
+    loaded,
+    byId,
+    forCategory,
+    findByName,
+    load,
+    create,
+    update,
+    remove,
+    merge,
+    moveToCategory,
+    saveMany,
+    $reset,
+  }
 })

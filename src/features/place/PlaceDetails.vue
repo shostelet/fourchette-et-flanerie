@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   Archive,
-  AtSign,
   Globe,
   Link as LinkIcon,
   Minimize2,
@@ -12,7 +11,9 @@ import {
   X,
 } from '@lucide/vue'
 import { computed, ref, type Component } from 'vue'
+import { RouterLink } from 'vue-router'
 import AppIcon from '@/components/common/AppIcon.vue'
+import InstagramIcon from '@/components/common/InstagramIcon.vue'
 import RatingSummary from '@/components/common/RatingSummary.vue'
 import { Button } from '@/components/ui/button'
 import { CRITERION_LABELS } from '@/config/ratings'
@@ -40,7 +41,7 @@ const closed = computed(() => isClosed(props.place))
 
 const LINK_ICONS: Record<PlaceLinkKind, Component> = {
   website: Globe,
-  instagram: AtSign,
+  instagram: InstagramIcon,
   other: LinkIcon,
 }
 
@@ -94,15 +95,10 @@ function remove(): void {
         <p class="text-sm text-muted-foreground">{{ place.address }}</p>
       </div>
       <div class="-mt-1 -mr-2 flex">
-        <Button
-          variant="ghost"
-          size="icon"
-          class="rounded-full"
-          aria-label="Modifier (bientôt)"
-          title="Modifier (bientôt)"
-          disabled
-        >
-          <Pencil />
+        <Button as-child variant="ghost" size="icon" class="rounded-full">
+          <RouterLink :to="{ name: 'place-edit', params: { id: place.id } }" aria-label="Modifier">
+            <Pencil />
+          </RouterLink>
         </Button>
         <Button variant="ghost" size="icon" class="rounded-full" aria-label="Vue compacte" @click="emit('compact')">
           <Minimize2 />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import TagChip from '@/components/common/TagChip.vue'
 import type { Place, Tag } from '@/domain/models'
 import { useTagsStore } from '@/stores/tags'
 
@@ -17,10 +18,9 @@ const placeTags = computed(() =>
     <li
       v-for="tag in placeTags"
       :key="tag.id"
-      class="flex items-center gap-1.5 rounded-full border border-input bg-background px-2.5 py-0.5 text-sm"
+      class="rounded-full border border-input bg-background px-2.5 py-0.5 text-sm"
     >
-      <span class="size-2.5 rounded-full" :style="{ backgroundColor: tag.color }" aria-hidden="true" />
-      {{ tag.name }}
+      <TagChip :tag="tag" />
     </li>
   </ul>
 </template>

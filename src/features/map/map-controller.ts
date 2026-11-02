@@ -50,9 +50,17 @@ export function useMapController() {
     })
   }
 
+  /** Geographic point at the center of the visible map. */
+  function center(): GeoPoint | undefined {
+    const instance = map.value
+    if (!instance) return undefined
+    const { lat, lng } = instance.getCenter()
+    return { lat, lng }
+  }
+
   function setFocus(value: MapFocus | undefined): void {
     focus.value = value
   }
 
-  return { map, focus, attach, detach, flyTo, setFocus }
+  return { map, focus, attach, detach, flyTo, center, setFocus }
 }

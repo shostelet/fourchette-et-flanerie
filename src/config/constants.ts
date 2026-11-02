@@ -1,7 +1,7 @@
 import type { GeoPoint } from '@/domain/models'
 
 /** Two places closer than this (with similar names) are suspected duplicates. */
-export const DUPLICATE_RADIUS_METERS = 50
+export const DUPLICATE_RADIUS_METERS = 200
 
 /** Radius around the map center for "new addresses" search results. */
 export const SEARCH_RADIUS_METERS = 10_000
