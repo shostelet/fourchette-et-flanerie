@@ -11,8 +11,10 @@ withDefaults(
     variant?: 'place' | 'home'
     /** Bigger, with a halo: the place currently focused (e.g. in review). */
     highlighted?: boolean
+    /** Permanently closed: greyed out (only shown when the filter asks for it). */
+    closed?: boolean
   }>(),
-  { toTest: false, variant: 'place', highlighted: false },
+  { toTest: false, variant: 'place', highlighted: false, closed: false },
 )
 </script>
 
@@ -20,9 +22,9 @@ withDefaults(
   <button
     type="button"
     :title="label"
-    :aria-label="toTest ? `${label} (à tester)` : label"
+    :aria-label="closed ? `${label} (fermé)` : toTest ? `${label} (à tester)` : label"
     class="relative flex cursor-pointer flex-col items-center drop-shadow-md transition-transform hover:scale-110 focus-visible:scale-110 focus-visible:outline-none"
-    :class="{ 'z-10 scale-125': highlighted }"
+    :class="{ 'z-10 scale-125': highlighted, 'opacity-60 grayscale': closed }"
   >
     <span
       v-if="highlighted"

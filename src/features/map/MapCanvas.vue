@@ -14,10 +14,11 @@ import {
   MAP_STYLE_URL,
 } from '@/config/constants'
 import type { GeoPoint, Home, Place } from '@/domain/models'
-import { isToTest } from '@/domain/places'
+import { isClosed, isToTest } from '@/domain/places'
+import { useFiltersStore } from '@/stores/filters'
 import { useHomeStore } from '@/stores/home'
-import { usePlacesStore } from '@/stores/places'
 import { usePreferencesStore } from '@/stores/preferences'
+import ViewToolbar from '@/features/list/ViewToolbar.vue'
 import LocateButton from './LocateButton.vue'
 import MapPin from './MapPin.vue'
 import UserLocationDot from './UserLocationDot.vue'
@@ -37,9 +38,8 @@ function openFromMap(to: RouteLocationRaw): void {
 }
 const controller = useMapController()
 const preferences = usePreferencesStore()
-const places = usePlacesStore()
+const filters = useFiltersStore()
 const { home } = storeToRefs(useHomeStore())
-const { activeCategory } = storeToRefs(preferences)
 const { position } = useGeolocation()
 
 /** Last view if less than 48 h old, otherwise home, otherwise Lyon. */
@@ -83,11 +83,13 @@ onBeforeUnmount(() => {
 
 // --- Markers ---------------------------------------------------------------
 
-useMapMarkers<Place>(() => places.activeIn(activeCategory.value), {
+// Markers follow the filters (shared with the list).
+useMapMarkers<Place>(() => filters.visiblePlaces, {
   key: (p) => p.id,
   version: (p) => p.updatedAt,
   position: (p) => p.location,
-  render: (p) => h(MapPin, { icon: p.icon, label: p.name, toTest: isToTest(p) }),
+  render: (p) =>
+    h(MapPin, { icon: p.icon, label: p.name, toTest: !isClosed(p) && isToTest(p), closed: isClosed(p) }),
   onClick: (p) => openFromMap({ name: 'place', params: { id: p.id } }),
 })
 
@@ -125,5 +127,6 @@ useMapMarkers<GeoPoint>(() => (position.value ? [position.value] : []), {
   <div class="absolute inset-0">
     <div ref="container" class="size-full" />
   </div>
+  <ViewToolbar class="absolute top-3 right-3 z-10" />
   <LocateButton />
 </template>

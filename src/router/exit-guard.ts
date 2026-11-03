@@ -1,5 +1,6 @@
 import type { RouteLocationNormalized, RouteLocationRaw, Router } from 'vue-router'
 import { useToast } from '@/composables/useToast'
+import { useFiltersStore } from '@/stores/filters'
 
 /**
  * Prevents the back gesture from closing the installed app.
@@ -30,8 +31,14 @@ export function exitGuardBeforeEnter(
   from: RouteLocationNormalized,
 ): RouteLocationRaw | true {
   if (installing) return true
-  // `from` has no match on the very first navigation (e.g. reload on the guard URL).
-  if (from.matched.length > 0) useToast().show(EXIT_HINT)
+  const filters = useFiltersStore()
+  if (filters.panelOpen) {
+    // Back with the filters open: close them, nothing else.
+    filters.panelOpen = false
+  } else if (from.matched.length > 0) {
+    // `from` has no match on the very first navigation (e.g. reload on the guard URL).
+    useToast().show(EXIT_HINT)
+  }
   return { name: 'map' }
 }
 

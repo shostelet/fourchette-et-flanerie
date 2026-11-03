@@ -32,6 +32,11 @@ const router = createRouter({
           component: () => import('@/features/review/ReviewPanel.vue'),
         },
         {
+          path: 'list',
+          name: 'list',
+          component: () => import('@/features/list/ListPanel.vue'),
+        },
+        {
           path: 'search',
           name: 'search',
           component: () => import('@/features/search/SearchPanel.vue'),

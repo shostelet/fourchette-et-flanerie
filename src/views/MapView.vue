@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { watch } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import FiltersPanel from '@/features/filters/FiltersPanel.vue'
 import AppHeader from '@/features/layout/AppHeader.vue'
 import MapCanvas from '@/features/map/MapCanvas.vue'
 import SearchBar from '@/features/search/SearchBar.vue'
 import { useAppDataStore } from '@/stores/app-data'
+import { useFiltersStore } from '@/stores/filters'
 
 const appData = useAppDataStore()
+const route = useRoute()
+const { panelOpen } = storeToRefs(useFiltersStore())
+
+// The filters belong to the base views (map, list): any other panel closes them.
+watch(
+  () => route.name,
+  (name) => {
+    if (name !== 'map' && name !== 'list') panelOpen.value = false
+  },
+)
 </script>
 
 <template>
@@ -19,6 +33,8 @@ const appData = useAppDataStore()
       </p>
       <!-- Overlays (menu, place detail…) are rendered on top of the map. -->
       <RouterView />
+      <!-- Filters over the map (over the list, the list shows them itself) -->
+      <FiltersPanel v-if="panelOpen && route.name === 'map'" />
     </main>
     <SearchBar />
   </div>
