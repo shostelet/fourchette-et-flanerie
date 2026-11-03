@@ -83,13 +83,13 @@ function wipe(): void {
           </RouterLink>
         </li>
         <li>
-          <RouterLink :to="{ name: 'tags' }" :class="itemClass">
+          <RouterLink :to="{ name: 'tags' }" replace :class="itemClass">
             <Tags class="size-4 text-primary" aria-hidden="true" />
             Gérer les tags
           </RouterLink>
         </li>
         <li>
-          <RouterLink :to="{ name: 'review' }" :class="itemClass">
+          <RouterLink :to="{ name: 'review' }" replace :class="itemClass">
             <ClipboardCheck class="size-4 text-primary" aria-hidden="true" />
             Passer en revue
             <span
@@ -101,7 +101,7 @@ function wipe(): void {
           </RouterLink>
         </li>
         <li>
-          <RouterLink :to="{ name: 'import' }" :class="itemClass">
+          <RouterLink :to="{ name: 'import' }" replace :class="itemClass">
             <FileUp class="size-4 text-primary" aria-hidden="true" />
             Importer un fichier
           </RouterLink>

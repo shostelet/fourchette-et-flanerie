@@ -4,8 +4,9 @@ import { AttributionControl, Map as MapLibreMap, setWorkerUrl } from 'maplibre-g
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { storeToRefs } from 'pinia'
 import { h, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useGeolocation } from '@/composables/useGeolocation'
+import { useOverlay } from '@/composables/useOverlay'
 import {
   DEFAULT_MAP_ZOOM,
   FALLBACK_MAP_CENTER,
@@ -28,6 +29,16 @@ setWorkerUrl(workerUrl)
 
 const container = useTemplateRef<HTMLDivElement>('container')
 const router = useRouter()
+const overlay = useOverlay()
+
+/** Panels where a tap on a marker must not navigate away (unsaved form, pin placement…). */
+const LOCKED_ROUTES = new Set(['place-new', 'place-edit', 'review', 'import'])
+
+/** A marker opens its card in place of the current panel (one panel at a time). */
+function openFromMap(to: RouteLocationRaw): void {
+  const current = String(router.currentRoute.value.name ?? '')
+  if (!LOCKED_ROUTES.has(current)) overlay.open(to)
+}
 const controller = useMapController()
 const preferences = usePreferencesStore()
 const places = usePlacesStore()
@@ -81,14 +92,7 @@ useMapMarkers<Place>(() => places.activeIn(activeCategory.value), {
   version: (p) => p.updatedAt,
   position: (p) => p.location,
   render: (p) => h(MapPin, { icon: p.icon, label: p.name, toTest: isToTest(p) }),
-  // From one place to another, replace the history entry: a single back
-  // gesture then returns to the map.
-  onClick: (p) => {
-    const target = { name: 'place', params: { id: p.id } }
-    const current = router.currentRoute.value.name
-    if (current === 'place' || current === 'home') void router.replace(target)
-    else void router.push(target)
-  },
+  onClick: (p) => openFromMap({ name: 'place', params: { id: p.id } }),
 })
 
 useMapMarkers<Home>(() => (home.value ? [home.value] : []), {
@@ -96,10 +100,7 @@ useMapMarkers<Home>(() => (home.value ? [home.value] : []), {
   version: (value) => `${value.location.lat},${value.location.lng}`,
   position: (value) => value.location,
   render: () => h(MapPin, { icon: 'house', label: 'Maison', variant: 'home' }),
-  onClick: () => {
-    if (router.currentRoute.value.name === 'place') void router.replace({ name: 'home' })
-    else if (router.currentRoute.value.name !== 'home') void router.push({ name: 'home' })
-  },
+  onClick: () => openFromMap({ name: 'home' }),
 })
 
 // Place highlighted by a panel (review…), drawn on top with its own category color.
