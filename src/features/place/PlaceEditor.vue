@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Crosshair, MapPin, Plus, Trash2 } from '@lucide/vue'
+import { Crosshair, LoaderCircle, MapPin, Plus, Trash2 } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -14,14 +14,18 @@ import { DEFAULT_MAP_ZOOM } from '@/config/constants'
 import { PLACE_ICONS } from '@/config/place-icons'
 import { cleanText } from '@/domain/entities'
 import { cleanLinks } from '@/domain/links'
-import { CATEGORIES, type Category, type GeoPoint, type Id } from '@/domain/models'
+import { CATEGORIES, type Category, type GeoPoint, type Id, type OsmRef, type PlaceSource } from '@/domain/models'
 import { findDuplicate } from '@/domain/places'
 import { useMapController } from '@/features/map/map-controller'
 import TagPicker from '@/features/tags/TagPicker.vue'
 import { useAppDataStore } from '@/stores/app-data'
 import { usePlacesStore } from '@/stores/places'
 import { usePreferencesStore } from '@/stores/preferences'
+import { excludeKnown, type GeoResult } from '@/domain/geocoding'
+import { useOverlay } from '@/composables/useOverlay'
+import { useSearchStore } from '@/stores/search'
 import { useTagsStore } from '@/stores/tags'
+import { nearbyPlaces, reverseGeocode } from '@/services/photon'
 
 /**
  * Add (no id) or edit (id) a place.
@@ -54,6 +58,16 @@ const tagIds = ref<Id[]>([])
 const links = ref<string[]>([''])
 const memo = ref('')
 const location = ref<GeoPoint>()
+// Kept from a search result, not edited in the form.
+const osmRef = ref<OsmRef>()
+const phone = ref<string>()
+const openingHours = ref<string>()
+const source = ref<PlaceSource>('manual')
+const lookingUpAddress = ref(false)
+/** Establishments found around a pin placed by hand, to pick from. */
+const nearby = ref<GeoResult[]>([])
+const nearbyStatus = ref<'idle' | 'loading' | 'done'>('idle')
+const appliedResultKey = ref<string>()
 const error = ref<string>()
 const busy = ref(false)
 
@@ -73,6 +87,31 @@ watch(
   },
   { immediate: true },
 )
+
+/** Pre-fills the form with an OSM result (from the search, or picked near the pin). */
+function applyResult(result: GeoResult): void {
+  const resultCategory = result.category ?? category.value
+  name.value = result.kind === 'place' ? result.name : name.value
+  address.value = result.kind === 'place' ? result.address : result.name
+  category.value = resultCategory
+  icon.value = result.icon ?? CATEGORY_DEFINITIONS[resultCategory].defaultPlaceIcon
+  if (result.links.length) links.value = result.links.map((l) => l.url)
+  location.value = result.location
+  osmRef.value = result.osmRef
+  phone.value = result.phone
+  openingHours.value = result.openingHours
+  source.value = 'search'
+  activeCategory.value = resultCategory
+  appliedResultKey.value = result.key
+}
+
+// A new address picked in the search results: everything is pre-filled.
+const fromSearch = isNew.value ? useSearchStore().takePendingResult() : undefined
+if (fromSearch) {
+  applyResult(fromSearch)
+  mode.value = 'form'
+}
+const { finishChild } = useOverlay()
 
 // Unknown place (wrong URL, deleted…): back to the map.
 watch(
@@ -128,6 +167,35 @@ function confirmLocation(): void {
   if (!point) return
   location.value = point
   mode.value = 'form'
+  if (!address.value.trim()) void fillAddressFrom(point)
+  if (isNew.value && !fromSearch) void findNearby(point)
+}
+
+/** Lists the establishments under the pin (not already saved). */
+async function findNearby(point: GeoPoint): Promise<void> {
+  nearbyStatus.value = 'loading'
+  nearby.value = []
+  try {
+    nearby.value = excludeKnown(await nearbyPlaces(point), places.items).slice(0, 6)
+  } catch {
+    nearby.value = []
+  } finally {
+    nearbyStatus.value = 'done'
+  }
+}
+
+/** Suggests the address of a pin placed by hand (reverse geocoding). */
+async function fillAddressFrom(point: GeoPoint): Promise<void> {
+  lookingUpAddress.value = true
+  try {
+    const found = await reverseGeocode(point)
+    // Don't overwrite what the user typed meanwhile.
+    if (found && !address.value.trim()) address.value = found.kind === 'address' ? found.name : found.address
+  } catch {
+    // No suggestion: the address stays to be typed.
+  } finally {
+    lookingUpAddress.value = false
+  }
 }
 
 function cancelLocating(): void {
@@ -155,7 +223,10 @@ async function save(): Promise<void> {
   }
 
   if (isNew.value) {
-    const duplicate = findDuplicate({ name: trimmedName, location: location.value }, places.items)
+    const duplicate = findDuplicate(
+      { name: trimmedName, location: location.value, osmRef: osmRef.value },
+      places.items,
+    )
     if (duplicate && !window.confirm(`« ${duplicate.name} » est déjà enregistré tout près. Créer quand même ?`)) {
       return
     }
@@ -173,19 +244,27 @@ async function save(): Promise<void> {
       links: cleanedLinks,
       memo: cleanText(memo.value),
     }
+    const searchFields = {
+      osmRef: osmRef.value,
+      phone: phone.value,
+      openingHours: openingHours.value,
+    }
 
     if (existing.value) {
       await places.update(existing.value.id, fields)
       toast.show('Lieu enregistré')
       close()
     } else {
-      const place = await places.create({ ...fields, source: 'manual' })
+      const place = await places.create({ ...fields, ...searchFields, source: source.value })
       // Show it right away, as a compact card centered on the map.
       activeCategory.value = place.category
       preferences.placeView = 'compact'
-      flyTo(place.location)
       toast.show('Lieu ajouté')
-      await router.replace({ name: 'place', params: { id: place.id } })
+      // The card keeps the pin visible. From the search, the results are left
+      // behind: closing the card returns to the map.
+      const target = { name: 'place', params: { id: place.id } }
+      if (fromSearch) await finishChild(target)
+      else await router.replace(target)
     }
   } finally {
     busy.value = false
@@ -222,6 +301,37 @@ const inputClass =
     @close="close"
   >
     <form id="place-form" class="mx-auto max-w-xl space-y-5" @submit.prevent="save">
+      <!-- Establishments under a pin placed by hand -->
+      <section v-if="nearbyStatus !== 'idle'" class="space-y-2" aria-live="polite">
+        <p v-if="nearbyStatus === 'loading'" class="flex items-center gap-2 text-sm text-muted-foreground">
+          <LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+          Recherche des établissements à cet endroit…
+        </p>
+        <p v-else-if="!nearby.length" class="text-sm text-muted-foreground">
+          Aucun établissement connu à cet endroit.
+        </p>
+        <h3 v-else class="text-sm font-medium">Établissements à cet endroit</h3>
+        <div v-if="nearby.length" class="flex flex-wrap gap-1">
+          <button
+            v-for="result in nearby"
+            :key="result.key"
+            type="button"
+            :data-category="result.category ?? category"
+            :aria-pressed="appliedResultKey === result.key"
+            class="flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1 text-sm"
+            :class="
+              appliedResultKey === result.key
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-input bg-background hover:bg-accent'
+            "
+            @click="applyResult(result)"
+          >
+            <AppIcon v-if="result.icon" :name="result.icon" class="size-3.5 shrink-0" />
+            <span class="truncate">{{ result.name }}</span>
+          </button>
+        </div>
+      </section>
+
       <div role="radiogroup" aria-label="Catégorie" class="flex gap-2">
         <button
           v-for="id in CATEGORIES"
@@ -250,7 +360,13 @@ const inputClass =
 
       <label class="block space-y-1">
         <span class="text-sm font-medium">Adresse</span>
-        <input v-model="address" type="text" autocomplete="off" :class="inputClass" />
+        <input
+          v-model="address"
+          type="text"
+          autocomplete="off"
+          :placeholder="lookingUpAddress ? 'Recherche de l’adresse…' : undefined"
+          :class="inputClass"
+        />
       </label>
 
       <div class="space-y-1">

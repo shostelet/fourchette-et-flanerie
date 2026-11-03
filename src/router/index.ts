@@ -32,6 +32,16 @@ const router = createRouter({
           component: () => import('@/features/review/ReviewPanel.vue'),
         },
         {
+          path: 'search',
+          name: 'search',
+          component: () => import('@/features/search/SearchPanel.vue'),
+        },
+        {
+          path: 'home/edit',
+          name: 'home-edit',
+          component: () => import('@/features/place/HomeEditor.vue'),
+        },
+        {
           path: 'home',
           name: 'home',
           component: () => import('@/features/place/HomePanel.vue'),

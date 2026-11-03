@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 import { h, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useGeolocation } from '@/composables/useGeolocation'
-import { useOverlay } from '@/composables/useOverlay'
+import { isLockedRoute, useOverlay } from '@/composables/useOverlay'
 import {
   DEFAULT_MAP_ZOOM,
   FALLBACK_MAP_CENTER,
@@ -31,13 +31,9 @@ const container = useTemplateRef<HTMLDivElement>('container')
 const router = useRouter()
 const overlay = useOverlay()
 
-/** Panels where a tap on a marker must not navigate away (unsaved form, pin placement…). */
-const LOCKED_ROUTES = new Set(['place-new', 'place-edit', 'review', 'import'])
-
 /** A marker opens its card in place of the current panel (one panel at a time). */
 function openFromMap(to: RouteLocationRaw): void {
-  const current = String(router.currentRoute.value.name ?? '')
-  if (!LOCKED_ROUTES.has(current)) overlay.open(to)
+  if (!isLockedRoute(router.currentRoute.value.name)) overlay.open(to)
 }
 const controller = useMapController()
 const preferences = usePreferencesStore()

@@ -4,6 +4,7 @@ import {
   Database,
   Download,
   FileUp,
+  House,
   MapPinPlus,
   Sparkles,
   Tags,
@@ -29,8 +30,6 @@ const busy = ref(false)
 const places = usePlacesStore()
 const toReviewCount = computed(() => places.items.filter(needsReview).length)
 
-/** Entries arriving in the next steps. */
-const upcoming = ['Adresse de la maison']
 
 const itemClass =
   'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
@@ -112,13 +111,11 @@ function wipe(): void {
             Exporter mes données
           </button>
         </li>
-        <li
-          v-for="label in upcoming"
-          :key="label"
-          class="flex items-center justify-between rounded-md px-3 py-2 text-muted-foreground"
-        >
-          {{ label }}
-          <span class="rounded-full bg-muted px-2 py-0.5 text-xs">Bientôt</span>
+        <li>
+          <RouterLink :to="{ name: 'home-edit' }" replace :class="itemClass">
+            <House class="size-4 text-primary" aria-hidden="true" />
+            Adresse de la maison
+          </RouterLink>
         </li>
       </ul>
 

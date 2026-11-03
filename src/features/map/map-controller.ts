@@ -50,6 +50,27 @@ export function useMapController() {
     })
   }
 
+  /**
+   * Makes sure a place is visible above a panel covering the bottom of the
+   * map from `coverTop` (a viewport y coordinate) downward. The map only moves
+   * when the pin is hidden or off screen: it is then centered in the visible part.
+   */
+  function ensureVisible(point: GeoPoint, coverTop: number): void {
+    const instance = map.value
+    if (!instance) return
+    const rect = instance.getContainer().getBoundingClientRect()
+    const bottomPadding = Math.max(0, Math.min(rect.height, rect.bottom - coverTop))
+    const { x, y } = instance.project([point.lng, point.lat])
+    const PIN_HEIGHT = 56 // the pin is drawn above its point
+    const MARGIN = 16
+    const visible =
+      x >= MARGIN &&
+      x <= rect.width - MARGIN &&
+      y - PIN_HEIGHT >= MARGIN &&
+      y <= rect.height - bottomPadding - MARGIN
+    if (!visible) flyTo(point, DEFAULT_MAP_ZOOM, { bottomPadding })
+  }
+
   /** Geographic point at the center of the visible map. */
   function center(): GeoPoint | undefined {
     const instance = map.value
@@ -62,5 +83,5 @@ export function useMapController() {
     focus.value = value
   }
 
-  return { map, focus, attach, detach, flyTo, center, setFocus }
+  return { map, focus, attach, detach, flyTo, ensureVisible, center, setFocus }
 }

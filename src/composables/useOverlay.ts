@@ -1,13 +1,23 @@
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 /**
+ * Panels with unsaved input (form, pin placement, review…): a tap on a map
+ * marker or typing in the search bar must not navigate away from them.
+ */
+const LOCKED_ROUTES = new Set(['place-new', 'place-edit', 'home-edit', 'review', 'import'])
+
+export function isLockedRoute(name: unknown): boolean {
+  return LOCKED_ROUTES.has(String(name ?? ''))
+}
+
+/**
  * Navigation between the panels shown over the map (menu, place, review, tags…).
  *
  * Rule: one panel at a time, and closing it always returns to the map.
  * - `open` from the map adds a history entry (back = close);
  * - `open` from another panel replaces it, so panels never pile up.
- * - `openChild` is for sub-views of a panel (edit a place from its card):
- *   back returns to the parent panel, which is expected there.
+ * - `openChild` is for sub-views of a panel (edit a place from its card, add a
+ *   place from a search result): back returns to the parent panel.
  */
 export function useOverlay() {
   const router = useRouter()
@@ -25,7 +35,24 @@ export function useOverlay() {
     void router.push(to)
   }
 
-  /** Back to the map (back in history when possible, see useCloseOverlay). */
+  /**
+   * Leaves a sub-view for `to`, replacing its parent too: after saving a place
+   * added from the search, the history is [map, place], not [map, search, place].
+   */
+  async function finishChild(to: RouteLocationRaw): Promise<void> {
+    if (window.history.state?.back) {
+      await new Promise<void>((resolve) => {
+        const stop = router.afterEach(() => {
+          stop()
+          resolve()
+        })
+        router.back()
+      })
+    }
+    await router.replace(to)
+  }
+
+  /** Back to the previous view (the map, or the parent of a sub-view). */
   function close(): void {
     if (isOnMap()) return
     if (window.history.state?.back) router.back()
@@ -38,5 +65,5 @@ export function useOverlay() {
     else open(to)
   }
 
-  return { open, openChild, close, toggle }
+  return { open, openChild, finishChild, close, toggle }
 }

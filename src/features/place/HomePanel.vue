@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { House, X } from '@lucide/vue'
+import { House, Pencil, X } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { onBeforeUnmount, watch, watchEffect } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
+import { useOverlay } from '@/composables/useOverlay'
 import { useMapController } from '@/features/map/map-controller'
 import { useAppDataStore } from '@/stores/app-data'
 import { useHomeStore } from '@/stores/home'
@@ -14,6 +15,7 @@ import { usePreferencesStore } from '@/stores/preferences'
  * Never expanded: there is nothing more to show (for now).
  */
 const close = useCloseOverlay()
+const { openChild } = useOverlay()
 const appData = useAppDataStore()
 const { home } = storeToRefs(useHomeStore())
 const { activeCategory } = storeToRefs(usePreferencesStore())
@@ -53,15 +55,26 @@ onBeforeUnmount(() => setFocus(undefined))
         <h2 class="text-base font-semibold">La maison</h2>
         <p class="truncate text-sm text-muted-foreground">{{ home.address }}</p>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        class="-mt-1 -mr-1 rounded-full hover:bg-ink/10 hover:text-ink"
-        aria-label="Fermer"
-        @click="close"
-      >
-        <X />
-      </Button>
+      <div class="-mt-1 -mr-1 flex">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="rounded-full hover:bg-ink/10 hover:text-ink"
+          aria-label="Modifier l’adresse"
+          @click="openChild({ name: 'home-edit' })"
+        >
+          <Pencil />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          class="rounded-full hover:bg-ink/10 hover:text-ink"
+          aria-label="Fermer"
+          @click="close"
+        >
+          <X />
+        </Button>
+      </div>
     </article>
   </div>
 </template>

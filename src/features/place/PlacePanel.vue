@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, watch, watchEffect } from 'vue'
+import { computed, nextTick, onBeforeUnmount, useTemplateRef, watch, watchEffect } from 'vue'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
 import { useMapController } from '@/features/map/map-controller'
 import { useAppDataStore } from '@/stores/app-data'
@@ -22,7 +22,8 @@ const close = useCloseOverlay()
 const appData = useAppDataStore()
 const places = usePlacesStore()
 const visits = useVisitsStore()
-const { setFocus } = useMapController()
+const { setFocus, ensureVisible } = useMapController()
+const panel = useTemplateRef<HTMLElement>('panel')
 const { placeView } = storeToRefs(usePreferencesStore())
 
 const place = computed(() => places.get(props.id))
@@ -45,11 +46,24 @@ watch(
   { immediate: true },
 )
 onBeforeUnmount(() => setFocus(undefined))
+
+// Keep the pin visible above the card: on opening, when switching
+// compact/expanded, and when going from one place to another.
+watch(
+  [() => place.value?.id, placeView],
+  async () => {
+    await nextTick()
+    const card = panel.value?.firstElementChild
+    if (place.value && card) ensureVisible(place.value.location, card.getBoundingClientRect().top)
+  },
+  { immediate: true, flush: 'post' },
+)
 </script>
 
 <template>
   <div
     v-if="place"
+    ref="panel"
     :data-category="place.category"
     class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col"
     :class="placeView === 'compact' ? 'p-3' : 'top-[12%] justify-end'"
