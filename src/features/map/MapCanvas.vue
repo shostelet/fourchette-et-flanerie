@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { AttributionControl, Map as MapLibreMap, setWorkerUrl } from 'maplibre-gl'
+import { AttributionControl, Map as MapLibreMap, setWorkerUrl, type GeoJSONSource } from 'maplibre-gl'
+import type { FeatureCollection } from 'geojson'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { storeToRefs } from 'pinia'
-import { h, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+import { h, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { isLockedRoute, useOverlay } from '@/composables/useOverlay'
@@ -19,10 +20,11 @@ import { useFiltersStore } from '@/stores/filters'
 import { useHomeStore } from '@/stores/home'
 import { usePreferencesStore } from '@/stores/preferences'
 import ViewToolbar from '@/features/list/ViewToolbar.vue'
+import RouteModeBanner from '@/features/routing/RouteModeBanner.vue'
 import LocateButton from './LocateButton.vue'
 import MapPin from './MapPin.vue'
 import UserLocationDot from './UserLocationDot.vue'
-import { useMapController, type MapFocus } from './map-controller'
+import { useMapController, type MapFocus, type MapRoute } from './map-controller'
 import { useMapMarkers } from './useMapMarkers'
 
 // MapLibre parses tiles in a Web Worker; Vite needs to know where it is.
@@ -73,7 +75,50 @@ onMounted(() => {
     preferences.saveMapView({ center: { lat, lng }, zoom: map.getZoom() })
   })
 
+  // Route line, below the markers (which are HTML elements on top of the map).
+  map.on('load', () => {
+    map.addSource(ROUTE_SOURCE, { type: 'geojson', data: routeData(controller.route.value) })
+    map.addLayer({
+      id: 'route-casing',
+      type: 'line',
+      source: ROUTE_SOURCE,
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: { 'line-color': '#ffffff', 'line-width': 8, 'line-opacity': 0.9 },
+    })
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: ROUTE_SOURCE,
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: { 'line-color': ['get', 'color'], 'line-width': 4.5 },
+    })
+  })
+
   controller.attach(map)
+})
+
+// --- Route -----------------------------------------------------------------
+
+const ROUTE_SOURCE = 'route'
+
+function routeData(route: MapRoute | undefined): FeatureCollection {
+  return {
+    type: 'FeatureCollection',
+    features: route
+      ? [
+          {
+            type: 'Feature',
+            properties: { color: route.color },
+            geometry: { type: 'LineString', coordinates: route.geometry },
+          },
+        ]
+      : [],
+  }
+}
+
+watch(controller.route, (route) => {
+  const source = controller.map.value?.getSource<GeoJSONSource>(ROUTE_SOURCE)
+  source?.setData(routeData(route))
 })
 
 onBeforeUnmount(() => {
@@ -84,7 +129,7 @@ onBeforeUnmount(() => {
 // --- Markers ---------------------------------------------------------------
 
 // Markers follow the filters (shared with the list).
-useMapMarkers<Place>(() => filters.visiblePlaces, {
+useMapMarkers<Place>(() => (controller.zen.value ? [] : filters.visiblePlaces), {
   key: (p) => p.id,
   version: (p) => p.updatedAt,
   position: (p) => p.location,
@@ -127,6 +172,7 @@ useMapMarkers<GeoPoint>(() => (position.value ? [position.value] : []), {
   <div class="absolute inset-0">
     <div ref="container" class="size-full" />
   </div>
-  <ViewToolbar class="absolute top-3 right-3 z-10" />
+  <RouteModeBanner v-if="controller.zen.value" />
+  <ViewToolbar v-else class="absolute top-3 right-3 z-10" />
   <LocateButton />
 </template>

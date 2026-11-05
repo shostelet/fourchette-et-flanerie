@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { useOverlay } from '@/composables/useOverlay'
+import { isLockedRoute, useOverlay } from '@/composables/useOverlay'
 import { useFiltersStore } from '@/stores/filters'
 
 /**
@@ -18,6 +18,22 @@ const overlay = useOverlay()
 const { activeCount, panelOpen } = storeToRefs(useFiltersStore())
 
 const inList = computed(() => route.name === 'list')
+const onBaseView = computed(() => route.name === 'map' || route.name === 'list')
+/** Forms and review must not be left by accident. */
+const disabled = computed(() => isLockedRoute(route.name))
+
+/**
+ * The filters belong to the base view: from a card (or any other panel),
+ * close it and open the filters on the map, or on the list it came from.
+ */
+function toggleFilters(): void {
+  if (onBaseView.value) {
+    panelOpen.value = !panelOpen.value
+  } else {
+    panelOpen.value = true
+    overlay.close()
+  }
+}
 const listPath = computed(() => router.resolve({ name: 'list' }).fullPath)
 
 function toggleView(): void {
@@ -37,10 +53,11 @@ function toggleView(): void {
     <Button
       variant="outline"
       class="relative rounded-full bg-card shadow-sm"
-      :class="{ 'border-primary text-primary': panelOpen }"
-      :aria-pressed="panelOpen"
+      :class="{ 'border-primary text-primary': panelOpen && onBaseView }"
+      :aria-pressed="panelOpen && onBaseView"
       :aria-label="activeCount ? `Filtres (${activeCount} actifs)` : 'Filtres'"
-      @click="panelOpen = !panelOpen"
+      :disabled="disabled"
+      @click="toggleFilters"
     >
       <SlidersHorizontal />
       Filtres
@@ -52,7 +69,7 @@ function toggleView(): void {
         {{ activeCount }}
       </span>
     </Button>
-    <Button variant="outline" class="rounded-full bg-card shadow-sm" @click="toggleView">
+    <Button variant="outline" class="rounded-full bg-card shadow-sm" :disabled="disabled" @click="toggleView">
       <MapIcon v-if="inList" />
       <List v-else class="text-primary" />
       {{ inList ? 'Carte' : 'Liste' }}

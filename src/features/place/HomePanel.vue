@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { House, Pencil, X } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
-import { onBeforeUnmount, watch, watchEffect } from 'vue'
+import { onBeforeUnmount, useTemplateRef, watch, watchEffect } from 'vue'
 import { Button } from '@/components/ui/button'
+import { HOME_COLOR } from '@/config/categories'
+import RouteSummary from '@/features/routing/RouteSummary.vue'
+import { useRouteModeFit } from '@/features/routing/useRouteModeFit'
 import { useCloseOverlay } from '@/composables/useCloseOverlay'
 import { useOverlay } from '@/composables/useOverlay'
 import { useMapController } from '@/features/map/map-controller'
@@ -20,6 +23,8 @@ const appData = useAppDataStore()
 const { home } = storeToRefs(useHomeStore())
 const { activeCategory } = storeToRefs(usePreferencesStore())
 const { setFocus } = useMapController()
+const panel = useTemplateRef<HTMLElement>('panel')
+useRouteModeFit(panel)
 
 // No home (wrong URL, data wiped…): back to the map.
 watchEffect(() => {
@@ -46,35 +51,44 @@ onBeforeUnmount(() => setFocus(undefined))
 </script>
 
 <template>
-  <div v-if="home" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-3">
-    <article class="pointer-events-auto mx-auto flex max-w-md items-start gap-3 rounded-xl bg-card p-3 shadow-xl">
-      <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-ink text-cream">
-        <House class="size-5" aria-hidden="true" />
-      </span>
-      <div class="min-w-0 flex-1">
-        <h2 class="text-base font-semibold">La maison</h2>
-        <p class="truncate text-sm text-muted-foreground">{{ home.address }}</p>
+  <div v-if="home" ref="panel" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-3">
+    <article class="pointer-events-auto mx-auto max-w-md rounded-xl bg-card p-3 shadow-xl">
+      <div class="flex items-start gap-3">
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-ink text-cream">
+          <House class="size-5" aria-hidden="true" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <h2 class="text-base font-semibold">La maison</h2>
+          <p class="truncate text-sm text-muted-foreground">{{ home.address }}</p>
+        </div>
+        <div class="-mt-1 -mr-1 flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="rounded-full hover:bg-ink/10 hover:text-ink"
+            aria-label="Modifier l’adresse"
+            @click="openChild({ name: 'home-edit' })"
+          >
+            <Pencil />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="rounded-full hover:bg-ink/10 hover:text-ink"
+            aria-label="Fermer"
+            @click="close"
+          >
+            <X />
+          </Button>
+        </div>
       </div>
-      <div class="-mt-1 -mr-1 flex">
-        <Button
-          variant="ghost"
-          size="icon"
-          class="rounded-full hover:bg-ink/10 hover:text-ink"
-          aria-label="Modifier l’adresse"
-          @click="openChild({ name: 'home-edit' })"
-        >
-          <Pencil />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          class="rounded-full hover:bg-ink/10 hover:text-ink"
-          aria-label="Fermer"
-          @click="close"
-        >
-          <X />
-        </Button>
-      </div>
+      <!-- Only from your position (never from home to home), in the home's dark color -->
+      <RouteSummary
+        class="mt-2 border-t border-border pt-2 [--primary:var(--color-ink)] [--primary-foreground:var(--color-cream)]"
+        :destination="home.location"
+        :color="HOME_COLOR"
+        :allow-home-origin="false"
+      />
     </article>
   </div>
 </template>

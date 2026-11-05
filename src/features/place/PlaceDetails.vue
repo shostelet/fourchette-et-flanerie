@@ -16,12 +16,14 @@ import AppIcon from '@/components/common/AppIcon.vue'
 import InstagramIcon from '@/components/common/InstagramIcon.vue'
 import RatingSummary from '@/components/common/RatingSummary.vue'
 import { Button } from '@/components/ui/button'
+import { CATEGORY_DEFINITIONS } from '@/config/categories'
 import { CRITERION_LABELS } from '@/config/ratings'
 import type { VisitPatch } from '@/domain/entities'
 import { linkLabel } from '@/domain/format'
 import type { Place, PlaceLinkKind } from '@/domain/models'
 import { isClosed } from '@/domain/places'
 import type { PlaceRatings } from '@/domain/ratings'
+import RouteSummary from '@/features/routing/RouteSummary.vue'
 import VisitForm from '@/features/visits/VisitForm.vue'
 import VisitItem from '@/features/visits/VisitItem.vue'
 import { usePlacesStore } from '@/stores/places'
@@ -113,6 +115,12 @@ function remove(): void {
       <p v-if="closed" class="rounded-lg bg-destructive/10 p-3 text-sm font-medium text-destructive">
         Ce lieu a fermé définitivement.
       </p>
+
+      <RouteSummary
+        v-if="!closed"
+        :destination="place.location"
+        :color="CATEGORY_DEFINITIONS[place.category].color"
+      />
 
       <PlaceTags :place="place" />
 

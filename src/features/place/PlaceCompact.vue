@@ -3,9 +3,11 @@ import { Maximize2, X } from '@lucide/vue'
 import AppIcon from '@/components/common/AppIcon.vue'
 import RatingSummary from '@/components/common/RatingSummary.vue'
 import { Button } from '@/components/ui/button'
+import { CATEGORY_DEFINITIONS } from '@/config/categories'
 import type { Place } from '@/domain/models'
 import { isClosed, isToTest } from '@/domain/places'
 import type { PlaceRatings } from '@/domain/ratings'
+import RouteSummary from '@/features/routing/RouteSummary.vue'
 
 /** Essentials only, with the map usable around (to find your way there). */
 defineProps<{ place: Place; ratings: PlaceRatings }>()
@@ -44,6 +46,12 @@ const emit = defineEmits<{ expand: []; close: [] }>()
         </Button>
       </div>
     </div>
+    <RouteSummary
+      v-if="!isClosed(place)"
+      class="mt-2 border-t border-border pt-2"
+      :destination="place.location"
+      :color="CATEGORY_DEFINITIONS[place.category].color"
+    />
     <div v-if="ratings.quality || ratings.value" class="mt-2 flex gap-4 border-t border-border pt-2">
       <RatingSummary compact label="Qualité" :summary="ratings.quality" />
       <RatingSummary compact label="Prix" :summary="ratings.value" />

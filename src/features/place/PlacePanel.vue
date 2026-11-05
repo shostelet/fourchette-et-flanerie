@@ -7,6 +7,7 @@ import { useAppDataStore } from '@/stores/app-data'
 import { usePlacesStore } from '@/stores/places'
 import { usePreferencesStore } from '@/stores/preferences'
 import { useVisitsStore } from '@/stores/visits'
+import { useRouteModeFit } from '@/features/routing/useRouteModeFit'
 import PlaceCompact from './PlaceCompact.vue'
 import PlaceDetails from './PlaceDetails.vue'
 
@@ -22,7 +23,7 @@ const close = useCloseOverlay()
 const appData = useAppDataStore()
 const places = usePlacesStore()
 const visits = useVisitsStore()
-const { setFocus, ensureVisible } = useMapController()
+const { setFocus, ensureVisible, setZen, zen } = useMapController()
 const panel = useTemplateRef<HTMLElement>('panel')
 const { placeView } = storeToRefs(usePreferencesStore())
 
@@ -47,6 +48,13 @@ watch(
 )
 onBeforeUnmount(() => setFocus(undefined))
 
+// Route mode: frame the route; going to another place ends it.
+useRouteModeFit(panel)
+watch(
+  () => props.id,
+  () => setZen(false),
+)
+
 // Keep the pin visible above the card: on opening, when switching
 // compact/expanded, and when going from one place to another.
 watch(
@@ -54,7 +62,8 @@ watch(
   async () => {
     await nextTick()
     const card = panel.value?.firstElementChild
-    if (place.value && card) ensureVisible(place.value.location, card.getBoundingClientRect().top)
+    // In route mode, the route framing takes care of the camera.
+    if (place.value && card && !zen.value) ensureVisible(place.value.location, card.getBoundingClientRect().top)
   },
   { immediate: true, flush: 'post' },
 )

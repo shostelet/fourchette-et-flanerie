@@ -5,7 +5,7 @@ import { useGeolocation, type GeolocationStatus } from '@/composables/useGeoloca
 import { useMapController } from './map-controller'
 
 const { status, locate } = useGeolocation()
-const { flyTo } = useMapController()
+const { panTo } = useMapController()
 
 const message = ref<string>()
 const busy = ref(false)
@@ -14,8 +14,7 @@ let hideTimer: ReturnType<typeof setTimeout> | undefined
 const MESSAGES = {
   denied:
     'La localisation est bloquée pour ce site. Dans Chrome : touche l’icône à gauche de l’adresse, puis Autorisations › Position.',
-  unavailable:
-    'Impossible d’obtenir ta position : vérifie que la localisation du téléphone est activée.',
+  unavailable: 'Impossible d’obtenir ta position : vérifie que la localisation du téléphone est activée.',
   unsupported: 'La localisation n’est pas disponible ici (elle nécessite une connexion HTTPS).',
   timeout: 'La position met trop de temps à arriver, réessaie dans un instant.',
 } as const
@@ -42,7 +41,8 @@ async function onClick(): Promise<void> {
   }
   busy.value = true
   try {
-    flyTo(await locate())
+    // Recenter only: the zoom stays as the user set it.
+    panTo(await locate())
     message.value = undefined
   } catch {
     // locate() may have changed the status: read it again.
@@ -59,10 +59,8 @@ onBeforeUnmount(() => clearTimeout(hideTimer))
 </script>
 
 <template>
-  <div class="absolute right-3 bottom-3 z-10 flex flex-col items-end gap-2">
-    <p v-if="message" role="status" class="max-w-64 rounded-lg bg-card px-3 py-2 text-sm shadow-lg">
-      {{ message }}
-    </p>
+  <!-- Top right, under the Filters/List toolbar: never hidden by a card. -->
+  <div class="absolute top-16 right-3 z-10 flex flex-col items-end gap-2">
     <button
       type="button"
       aria-label="Me localiser"
@@ -73,5 +71,12 @@ onBeforeUnmount(() => clearTimeout(hideTimer))
     >
       <component :is="icon" class="size-5" :class="{ 'animate-pulse': busy }" />
     </button>
+    <p
+      v-if="message"
+      role="status"
+      class="max-w-64 rounded-lg bg-card px-3 py-2 text-sm shadow-lg"
+    >
+      {{ message }}
+    </p>
   </div>
 </template>

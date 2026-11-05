@@ -14,7 +14,7 @@ const overlay = useOverlay()
 const search = useSearchStore()
 const { query } = storeToRefs(search)
 const { home } = storeToRefs(useHomeStore())
-const { flyTo } = useMapController()
+const { panTo } = useMapController()
 const input = useTemplateRef<HTMLInputElement>('input')
 
 /** No search while a form or the review is open: it would replace it. */
@@ -44,7 +44,8 @@ function clear(): void {
 }
 
 function centerOnHome(): void {
-  if (home.value) flyTo(home.value.location)
+  // Recenter only: the zoom stays as the user set it.
+  if (home.value) panTo(home.value.location)
 }
 </script>
 

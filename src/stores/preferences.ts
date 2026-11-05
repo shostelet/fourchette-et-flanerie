@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { DEFAULT_CATEGORY } from '@/config/categories'
 import { isMapViewFresh, type MapView } from '@/domain/map-view'
 import { CATEGORIES, type Category } from '@/domain/models'
+import { TRAVEL_MODES, type TravelMode } from '@/domain/routing'
 import { readJson, writeJson } from '@/utils/local-storage'
 
 export type PlaceViewMode = 'compact' | 'expanded'
@@ -26,6 +27,13 @@ export const usePreferencesStore = defineStore('preferences', () => {
   )
   watch(placeView, (value) => writeJson('placeView', value))
 
+  /** Last travel mode chosen for routes. */
+  const storedMode = readJson<string>('travelMode', 'foot')
+  const travelMode = ref<TravelMode>(
+    (TRAVEL_MODES as readonly string[]).includes(storedMode) ? (storedMode as TravelMode) : 'foot',
+  )
+  watch(travelMode, (value) => writeJson('travelMode', value))
+
   const lastMapView = ref<MapView | undefined>(readJson<MapView | undefined>('lastMapView', undefined))
 
   function saveMapView(view: Omit<MapView, 'savedAt'>): void {
@@ -38,5 +46,5 @@ export const usePreferencesStore = defineStore('preferences', () => {
     return isMapViewFresh(lastMapView.value, now) ? lastMapView.value : undefined
   }
 
-  return { activeCategory, placeView, lastMapView, saveMapView, restorableMapView }
+  return { activeCategory, placeView, travelMode, lastMapView, saveMapView, restorableMapView }
 })
