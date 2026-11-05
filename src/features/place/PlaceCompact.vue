@@ -15,7 +15,7 @@ const emit = defineEmits<{ expand: []; close: [] }>()
 </script>
 
 <template>
-  <article class="pointer-events-auto mx-auto max-w-md rounded-xl bg-card p-3 shadow-xl">
+  <article class="pointer-events-auto mx-auto w-full max-w-md rounded-xl bg-card p-3 shadow-xl">
     <div class="flex items-start gap-3">
       <button
         type="button"
@@ -25,7 +25,11 @@ const emit = defineEmits<{ expand: []; close: [] }>()
       >
         <AppIcon :name="place.icon" class="size-5" />
       </button>
-      <button type="button" class="min-w-0 flex-1 text-left" @click="emit('expand')">
+      <button
+        type="button"
+        class="min-w-0 flex-1 overflow-hidden text-left"
+        @click="emit('expand')"
+      >
         <!-- The name shrinks (ellipsis), the status never does. -->
         <h2 class="flex min-w-0 items-baseline gap-2">
           <span class="truncate text-base font-semibold">{{ place.name }}</span>
