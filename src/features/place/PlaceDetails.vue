@@ -96,7 +96,7 @@ function remove(): void {
 </script>
 
 <template>
-  <article class="pointer-events-auto flex max-h-full min-h-0 flex-col rounded-t-2xl bg-card shadow-[0_-8px_24px_rgb(0_0_0/0.12)]">
+  <article class="pointer-events-auto flex max-h-full min-h-0 flex-col rounded-t-2xl bg-card shadow-sheet">
     <!-- Header -->
     <header class="flex items-start gap-3 border-b border-border p-4">
       <span

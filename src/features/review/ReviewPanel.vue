@@ -125,7 +125,7 @@ const chip = (selected: boolean) =>
       ref="sheet"
       aria-label="Passer en revue"
       :data-category="draft?.category"
-      class="pointer-events-auto flex min-h-0 flex-col rounded-t-2xl bg-card shadow-[0_-8px_24px_rgb(0_0_0/0.12)]"
+      class="pointer-events-auto flex min-h-0 flex-col rounded-t-2xl bg-card shadow-sheet"
     >
       <header class="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
         <div>

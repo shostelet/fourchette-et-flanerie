@@ -22,7 +22,16 @@
   --color-terracotta-strong: #a64a29;
   --color-olive: #6b7f4e;
   --color-olive-strong: #566840;
+
+  /* Warm shadows (tinted brown, softer than Tailwind's black ones). */
+  --shadow-sm: 0 1px 2px 0 rgb(74 52 34 / 0.08), 0 1px 3px 0 rgb(74 52 34 / 0.06);
+  --shadow-md: 0 2px 4px -1px rgb(74 52 34 / 0.1), 0 4px 10px -2px rgb(74 52 34 / 0.1);
+  --shadow-lg: 0 4px 8px -2px rgb(74 52 34 / 0.1), 0 12px 24px -6px rgb(74 52 34 / 0.14);
+  --shadow-xl: 0 8px 16px -4px rgb(74 52 34 / 0.12), 0 20px 40px -10px rgb(74 52 34 / 0.18);
+  /* Panels coming up from the bottom of the screen. */
+  --shadow-sheet: 0 -2px 6px rgb(74 52 34 / 0.06), 0 -12px 32px -8px rgb(74 52 34 / 0.16);
 }
+
 
 html[data-category] {
   --background: #f6f1ea;

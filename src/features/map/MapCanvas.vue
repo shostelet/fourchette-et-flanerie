@@ -30,6 +30,7 @@ import UserLocationDot from './UserLocationDot.vue'
 import { useMapController, type MapFocus, type MapRoute } from './map-controller'
 import { useMapMarkers } from './useMapMarkers'
 import { hideSplash } from '@/utils/splash'
+import { warmUpMapStyle } from '@/config/map-style'
 
 // MapLibre parses tiles in a Web Worker; Vite needs to know where it is.
 setWorkerUrl(workerUrl)
@@ -94,6 +95,7 @@ onMounted(() => {
   map.on('load', () => {
     // Data is loaded (the map waits for it) and the map is drawn: the app is ready.
     hideSplash()
+    warmUpMapStyle(map)
     map.addSource(ROUTE_SOURCE, { type: 'geojson', data: routeData(controller.route.value) })
     map.addLayer({
       id: 'route-casing',

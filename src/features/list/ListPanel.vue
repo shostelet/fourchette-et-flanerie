@@ -64,7 +64,8 @@ function openPlace(place: Place): void {
 <template>
   <section aria-label="Liste des lieux" class="absolute inset-0 z-20 flex flex-col bg-background">
     <header class="space-y-2 border-b border-border bg-card px-4 py-2">
-      <div class="flex items-center justify-between gap-2">
+      <!-- Right padding: room for the toolbar, placed exactly as on the map. -->
+      <div class="flex min-h-10 items-center pr-56">
         <div>
           <h2 class="font-semibold">{{ CATEGORY_DEFINITIONS[activeCategory].label }}</h2>
           <p class="text-xs text-muted-foreground">
@@ -72,7 +73,6 @@ function openPlace(place: Place): void {
             <template v-if="activeCount"> · {{ pluralize(activeCount, 'filtre actif', 'filtres actifs') }}</template>
           </p>
         </div>
-        <ViewToolbar />
       </div>
       <label class="flex items-center gap-2 text-sm">
         <span class="text-muted-foreground">Trier :</span>
@@ -128,6 +128,8 @@ function openPlace(place: Place): void {
       </div>
       <p v-else class="p-4 text-center text-xs text-muted-foreground">Distances {{ originLabel }}.</p>
     </div>
+
+    <ViewToolbar class="absolute top-3 right-3 z-10" />
 
     <!-- Filters, as a layer over the list -->
     <FiltersPanel v-if="panelOpen" />
