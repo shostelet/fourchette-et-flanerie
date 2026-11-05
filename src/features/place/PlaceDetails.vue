@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import {
   Archive,
+  Clock,
+  DatabaseZap,
   Globe,
   Link as LinkIcon,
+  LoaderCircle,
   Minimize2,
+  Phone,
   Pencil,
   Plus,
   RotateCcw,
@@ -21,6 +25,7 @@ import { CRITERION_LABELS } from '@/config/ratings'
 import type { VisitPatch } from '@/domain/entities'
 import { linkLabel } from '@/domain/format'
 import type { Place, PlaceLinkKind } from '@/domain/models'
+import { formatOpeningHours } from '@/domain/osm-details'
 import { isClosed } from '@/domain/places'
 import type { PlaceRatings } from '@/domain/ratings'
 import RouteSummary from '@/features/routing/RouteSummary.vue'
@@ -29,6 +34,7 @@ import VisitItem from '@/features/visits/VisitItem.vue'
 import { usePlacesStore } from '@/stores/places'
 import { useVisitsStore } from '@/stores/visits'
 import PlaceTags from './PlaceTags.vue'
+import { useOsmCompletion } from './useOsmCompletion'
 
 const props = defineProps<{ place: Place; ratings: PlaceRatings }>()
 const emit = defineEmits<{ compact: []; close: [] }>()
@@ -40,6 +46,13 @@ const busy = ref(false)
 
 const placeVisits = computed(() => visits.forPlace(props.place.id))
 const closed = computed(() => isClosed(props.place))
+const openingHours = computed(() =>
+  props.place.openingHours ? formatOpeningHours(props.place.openingHours) : [],
+)
+const { busy: osmBusy, complete: completeFromOsm } = useOsmCompletion()
+
+/** "tel:" link without spaces. */
+const telHref = (phone: string) => `tel:${phone.replace(/\s/g, '')}`
 
 const LINK_ICONS: Record<PlaceLinkKind, Component> = {
   website: Globe,
@@ -139,6 +152,37 @@ function remove(): void {
           </a>
         </li>
       </ul>
+
+      <!-- Practical details -->
+      <section v-if="place.phone || openingHours.length" class="space-y-2 text-sm">
+        <a
+          v-if="place.phone"
+          :href="telHref(place.phone)"
+          class="inline-flex items-center gap-2 text-primary underline-offset-2 hover:underline"
+        >
+          <Phone class="size-4" aria-hidden="true" />
+          {{ place.phone }}
+        </a>
+        <div v-if="openingHours.length" class="flex gap-2">
+          <Clock class="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <ul>
+            <li v-for="line in openingHours" :key="line">{{ line }}</li>
+          </ul>
+        </div>
+      </section>
+
+      <Button
+        v-if="!closed"
+        variant="ghost"
+        size="sm"
+        class="-ml-2 text-muted-foreground"
+        :disabled="osmBusy"
+        @click="completeFromOsm(place)"
+      >
+        <LoaderCircle v-if="osmBusy" class="animate-spin" />
+        <DatabaseZap v-else />
+        Compléter depuis OSM
+      </Button>
 
       <!-- Status -->
       <!-- Read-only once closed: the status stays visible, but can't change anymore. -->
