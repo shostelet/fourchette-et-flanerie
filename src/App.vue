@@ -4,6 +4,7 @@ import { RouterView } from 'vue-router'
 import AppToast from '@/components/common/AppToast.vue'
 import { useAppDataStore } from '@/stores/app-data'
 import { usePreferencesStore } from '@/stores/preferences'
+import { hideSplash } from '@/utils/splash'
 
 const appData = useAppDataStore()
 const preferences = usePreferencesStore()
@@ -14,7 +15,11 @@ watchEffect(() => {
 })
 
 onMounted(() => {
-  appData.loadAll().catch((error: unknown) => console.error(error))
+  appData.loadAll().catch((error: unknown) => {
+    console.error(error)
+    // No map will come: show the error message right away.
+    hideSplash()
+  })
 })
 </script>
 

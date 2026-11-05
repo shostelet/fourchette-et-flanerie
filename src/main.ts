@@ -6,6 +6,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { installExitGuard } from './router/exit-guard'
+import { armSplashFallback } from './utils/splash'
+
+armSplashFallback()
 
 const app = createApp(App)
 

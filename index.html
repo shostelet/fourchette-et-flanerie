@@ -8,9 +8,79 @@
     <meta name="theme-color" content="#fffdf9" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!--
+      Splash screen styles, inline: shown from the very first frame, before
+      the app's CSS and JavaScript are downloaded. Removed by src/utils/splash.ts.
+    -->
+    <style>
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: #f6f1ea;
+        color: #2b2a28;
+        font-family: system-ui, sans-serif;
+        transition: opacity 250ms ease-out;
+      }
+      #splash.splash-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #splash svg {
+        width: 96px;
+        height: 96px;
+        border-radius: 21px;
+        box-shadow: 0 8px 24px rgb(43 42 40 / 0.15);
+      }
+      #splash .splash-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+      /* The trail dots light up one after the other. */
+      #splash .splash-dot {
+        animation: splash-walk 1.2s ease-in-out infinite;
+      }
+      #splash .splash-dot:nth-child(2) { animation-delay: 0.15s; }
+      #splash .splash-dot:nth-child(3) { animation-delay: 0.3s; }
+      #splash .splash-dot:nth-child(4) { animation-delay: 0.45s; }
+      @keyframes splash-walk {
+        0%, 100% { opacity: 0.35; }
+        50% { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash .splash-dot { animation: none; }
+        #splash { transition: none; }
+      }
+    </style>
   </head>
   <!-- Inline background: no white flash before the CSS loads. -->
   <body style="background-color: #f6f1ea">
+    <div id="splash" role="status" aria-label="Chargement de Fourchette & Flânerie">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
+        <rect width="512" height="512" rx="112" fill="#c65d3b" />
+        <g fill="#fffdf9">
+          <rect x="200" y="104" width="24" height="112" rx="12" />
+          <rect x="244" y="104" width="24" height="112" rx="12" />
+          <rect x="288" y="104" width="24" height="112" rx="12" />
+          <path d="M200 196h112v12a56 56 0 0 1-56 56a56 56 0 0 1-56-56z" />
+          <rect x="243" y="240" width="26" height="150" rx="13" />
+        </g>
+        <g fill="#f3d9c9">
+          <circle class="splash-dot" cx="256" cy="414" r="9" />
+          <circle class="splash-dot" cx="290" cy="424" r="8" />
+          <circle class="splash-dot" cx="322" cy="420" r="7" />
+          <circle class="splash-dot" cx="350" cy="406" r="6" />
+        </g>
+      </svg>
+      <p class="splash-title">Fourchette &amp; Flânerie</p>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
