@@ -11,6 +11,7 @@ import {
   Trash2,
   X,
 } from '@lucide/vue'
+import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,7 @@ import { useImportExport } from '@/features/import-export/useImportExport'
 import { needsReview } from '@/domain/review'
 import { useAppDataStore } from '@/stores/app-data'
 import { usePlacesStore } from '@/stores/places'
+import { usePreferencesStore } from '@/stores/preferences'
 import { seedSampleData } from './dev-seed'
 
 const close = useCloseOverlay()
@@ -28,6 +30,7 @@ const { exportAll } = useImportExport()
 const toast = useToast()
 const busy = ref(false)
 const places = usePlacesStore()
+const { clusterMarkers } = storeToRefs(usePreferencesStore())
 const toReviewCount = computed(() => places.items.filter(needsReview).length)
 
 
@@ -118,6 +121,14 @@ function wipe(): void {
           </RouterLink>
         </li>
       </ul>
+
+      <section class="space-y-2 border-t border-border pt-4">
+        <h3 class="text-sm font-semibold text-muted-foreground">Affichage</h3>
+        <label class="flex items-center justify-between gap-3 px-3 py-1">
+          <span>Regrouper les lieux au dézoom</span>
+          <input v-model="clusterMarkers" type="checkbox" class="size-5 accent-primary" />
+        </label>
+      </section>
 
       <section class="mt-auto space-y-2 border-t border-border pt-4">
         <h3 class="flex items-center gap-2 text-sm font-semibold text-muted-foreground">

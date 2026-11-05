@@ -4,23 +4,26 @@ import { AttributionControl, Map as MapLibreMap, setWorkerUrl, type GeoJSONSourc
 import type { FeatureCollection } from 'geojson'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { storeToRefs } from 'pinia'
-import { h, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
+import { computed, h, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { isLockedRoute, useOverlay } from '@/composables/useOverlay'
 import {
+  CLUSTER_MAX_ZOOM,
   DEFAULT_MAP_ZOOM,
   FALLBACK_MAP_CENTER,
   FALLBACK_MAP_ZOOM,
   MAP_STYLE_URL,
 } from '@/config/constants'
 import type { GeoPoint, Home, Place } from '@/domain/models'
+import { clusterPoints, type Clustered } from '@/domain/clustering'
 import { isClosed, isToTest } from '@/domain/places'
 import { useFiltersStore } from '@/stores/filters'
 import { useHomeStore } from '@/stores/home'
 import { usePreferencesStore } from '@/stores/preferences'
 import ViewToolbar from '@/features/list/ViewToolbar.vue'
 import RouteModeBanner from '@/features/routing/RouteModeBanner.vue'
+import ClusterBubble from './ClusterBubble.vue'
 import LocateButton from './LocateButton.vue'
 import MapPin from './MapPin.vue'
 import UserLocationDot from './UserLocationDot.vue'
@@ -71,6 +74,11 @@ onMounted(() => {
 
   // The camera only moves when the user moves it (or taps a button):
   // we just remember where they left it.
+  zoomLevel.value = Math.floor(map.getZoom())
+  map.on('zoomend', () => {
+    zoomLevel.value = Math.floor(map.getZoom())
+  })
+
   map.on('moveend', () => {
     const { lng, lat } = map.getCenter()
     preferences.saveMapView({ center: { lat, lng }, zoom: map.getZoom() })
@@ -131,14 +139,44 @@ onBeforeUnmount(() => {
 
 // --- Markers ---------------------------------------------------------------
 
-// Markers follow the filters (shared with the list).
-useMapMarkers<Place>(() => (controller.zen.value ? [] : filters.visiblePlaces), {
+// Markers follow the filters (shared with the list). When zoomed out, nearby
+// places are grouped (grid per whole zoom level, recomputed after each zoom).
+const zoomLevel = ref(0)
+
+const grouped = computed(() => {
+  if (controller.zen.value) return []
+  // The open place has its own highlighted pin: keep it out of the clusters.
+  const focusedId = controller.focus.value?.placeId
+  const visible = focusedId
+    ? filters.visiblePlaces.filter((p) => p.id !== focusedId)
+    : filters.visiblePlaces
+  return preferences.clusterMarkers
+    ? clusterPoints(visible, (p) => p.location, zoomLevel.value, { maxZoom: CLUSTER_MAX_ZOOM })
+    : visible.map((item) => ({ kind: 'single' as const, item }))
+})
+const singles = computed(() => grouped.value.flatMap((g) => (g.kind === 'single' ? [g.item] : [])))
+const clusters = computed(() =>
+  grouped.value.flatMap((g) => (g.kind === 'cluster' ? [g] : [])),
+)
+
+useMapMarkers<Place>(() => singles.value, {
   key: (p) => p.id,
   version: (p) => p.updatedAt,
   position: (p) => p.location,
   render: (p) =>
     h(MapPin, { icon: p.icon, label: p.name, toTest: !isClosed(p) && isToTest(p), closed: isClosed(p) }),
   onClick: (p) => openFromMap({ name: 'place', params: { id: p.id } }),
+})
+
+type Cluster = Extract<Clustered<Place>, { kind: 'cluster' }>
+useMapMarkers<Cluster>(() => clusters.value, {
+  key: (c) => c.key,
+  version: (c) => String(c.items.length),
+  position: (c) => c.location,
+  render: (c) => h(ClusterBubble, { count: c.items.length }),
+  anchor: 'center',
+  // Zoom just enough to split the group.
+  onClick: (c) => controller.fitPoints(c.items.map((p) => p.location), CLUSTER_MAX_ZOOM),
 })
 
 useMapMarkers<Home>(() => (home.value ? [home.value] : []), {

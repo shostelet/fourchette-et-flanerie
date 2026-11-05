@@ -41,7 +41,13 @@ watch(
   (value) =>
     setFocus(
       value
-        ? { location: value.location, label: value.name, icon: value.icon, category: value.category }
+        ? {
+            placeId: value.id,
+            location: value.location,
+            label: value.name,
+            icon: value.icon,
+            category: value.category,
+          }
         : undefined,
     ),
   { immediate: true },

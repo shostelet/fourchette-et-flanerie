@@ -34,6 +34,10 @@ export const usePreferencesStore = defineStore('preferences', () => {
   )
   watch(travelMode, (value) => writeJson('travelMode', value))
 
+  /** Group nearby places into clusters when zoomed out. */
+  const clusterMarkers = ref(readJson<boolean>('clusterMarkers', true) !== false)
+  watch(clusterMarkers, (value) => writeJson('clusterMarkers', value))
+
   const lastMapView = ref<MapView | undefined>(readJson<MapView | undefined>('lastMapView', undefined))
 
   function saveMapView(view: Omit<MapView, 'savedAt'>): void {
@@ -46,5 +50,13 @@ export const usePreferencesStore = defineStore('preferences', () => {
     return isMapViewFresh(lastMapView.value, now) ? lastMapView.value : undefined
   }
 
-  return { activeCategory, placeView, travelMode, lastMapView, saveMapView, restorableMapView }
+  return {
+    activeCategory,
+    placeView,
+    travelMode,
+    clusterMarkers,
+    lastMapView,
+    saveMapView,
+    restorableMapView,
+  }
 })

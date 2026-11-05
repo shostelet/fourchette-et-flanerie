@@ -6,6 +6,8 @@ import { lineBounds, type LngLat } from '@/domain/routing'
 
 /** A place highlighted on the map (e.g. the one being reviewed). */
 export interface MapFocus {
+  /** Id of the focused saved place: its regular marker is replaced by this one. */
+  placeId?: string
   location: GeoPoint
   icon: string
   label: string
@@ -117,6 +119,14 @@ export function useMapController() {
     if (!inside) instance.fitBounds(bounds, { padding, maxZoom: 17, essential: true })
   }
 
+  /** Zooms on a group of points (a tapped cluster), up to `maxZoom`. */
+  function fitPoints(points: readonly GeoPoint[], maxZoom: number): void {
+    const instance = map.value
+    const bounds = lineBounds(points.map((p): LngLat => [p.lng, p.lat]))
+    if (!instance || !bounds) return
+    instance.fitBounds(bounds, { padding: 80, maxZoom, essential: true })
+  }
+
   /** Geographic point at the center of the visible map. */
   function center(): GeoPoint | undefined {
     const instance = map.value
@@ -148,6 +158,7 @@ export function useMapController() {
     panTo,
     ensureVisible,
     fitRoute,
+    fitPoints,
     center,
     setFocus,
     setRoute,

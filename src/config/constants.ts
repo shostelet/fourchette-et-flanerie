@@ -9,6 +9,9 @@ export const SEARCH_RADIUS_METERS = 10_000
 /** How long the last map position is restored on startup. */
 export const MAP_VIEW_MEMORY_MS = 48 * 60 * 60 * 1000
 
+/** From this zoom level on, places are never grouped on the map. */
+export const CLUSTER_MAX_ZOOM = 15
+
 /** Zoom level used when centering on home, on a place or on the user. */
 export const DEFAULT_MAP_ZOOM = 15
 
