@@ -71,7 +71,7 @@ function toggleView(): void {
     </Button>
     <Button variant="outline" class="rounded-full bg-card shadow-sm" :disabled="disabled" @click="toggleView">
       <MapIcon v-if="inList" />
-      <List v-else class="text-primary" />
+      <List v-else />
       {{ inList ? 'Carte' : 'Liste' }}
     </Button>
   </div>

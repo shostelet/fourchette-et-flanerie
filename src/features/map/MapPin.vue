@@ -23,12 +23,12 @@ withDefaults(
     type="button"
     :title="label"
     :aria-label="closed ? `${label} (fermé)` : toTest ? `${label} (à tester)` : label"
-    class="relative flex cursor-pointer flex-col items-center drop-shadow-md transition-transform hover:scale-110 focus-visible:scale-110 focus-visible:outline-none"
+    class="relative flex cursor-pointer flex-col items-center drop-shadow-md transition-transform hover:scale-110 focus-visible:scale-110 focus-visible:rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ink"
     :class="{ 'z-10 scale-125': highlighted, 'opacity-60 grayscale': closed }"
   >
     <span
       v-if="highlighted"
-      class="absolute top-0 size-9 animate-ping rounded-full"
+      class="absolute top-0 size-9 motion-safe:animate-ping rounded-full"
       :class="variant === 'home' ? 'bg-ink/40' : 'bg-primary/40'"
       aria-hidden="true"
     />

@@ -79,12 +79,11 @@ async function save(): Promise<void> {
         Aucune adresse trouvée.
       </p>
 
-      <ul v-if="results.length" role="listbox" aria-label="Adresses" class="space-y-1">
+      <ul v-if="results.length" role="group" aria-label="Adresses" class="space-y-1">
         <li v-for="result in results" :key="result.key">
           <button
             type="button"
-            role="option"
-            :aria-selected="selected?.key === result.key"
+            :aria-pressed="selected?.key === result.key"
             class="flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left"
             :class="selected?.key === result.key ? 'border-ink bg-card' : 'border-transparent hover:bg-accent'"
             @click="selected = result"

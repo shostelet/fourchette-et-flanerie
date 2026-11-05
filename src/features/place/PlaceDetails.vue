@@ -187,7 +187,7 @@ function remove(): void {
       <!-- Status -->
       <!-- Read-only once closed: the status stays visible, but can't change anymore. -->
       <div
-        role="radiogroup"
+        role="group"
         aria-label="Statut"
         :aria-disabled="closed"
         class="flex rounded-full bg-muted p-1"
@@ -200,8 +200,7 @@ function remove(): void {
           ]"
           :key="option.label"
           type="button"
-          role="radio"
-          :aria-checked="place.visited === option.visited"
+          :aria-pressed="place.visited === option.visited"
           :disabled="busy || closed"
           class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed"
           :class="

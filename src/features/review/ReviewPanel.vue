@@ -211,13 +211,12 @@ const chip = (selected: boolean) =>
 
           <!-- Quick fixes -->
           <div class="space-y-3">
-            <div role="radiogroup" aria-label="Catégorie" class="flex gap-2">
+            <div role="group" aria-label="Catégorie" class="flex gap-2">
               <button
                 v-for="id in CATEGORIES"
                 :key="id"
                 type="button"
-                role="radio"
-                :aria-checked="draft.category === id"
+                :aria-pressed="draft.category === id"
                 :data-category="id"
                 class="flex flex-1 items-center justify-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium"
                 :class="chip(draft.category === id)"

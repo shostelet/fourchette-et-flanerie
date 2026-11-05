@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { Settings } from '@lucide/vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useOverlay } from '@/composables/useOverlay'
 import { Button } from '@/components/ui/button'
 import CategorySwitch from './CategorySwitch.vue'
 
 const { toggle } = useOverlay()
+const route = useRoute()
+const menuOpen = computed(() => route.name === 'settings')
 </script>
 
 <template>
@@ -15,7 +19,9 @@ const { toggle } = useOverlay()
       variant="ghost"
       size="icon"
       class="shrink-0 rounded-full"
+      :class="{ 'bg-accent text-primary': menuOpen }"
       aria-label="Menu"
+      :aria-expanded="menuOpen"
       @click="toggle({ name: 'settings' })"
     >
       <Settings />

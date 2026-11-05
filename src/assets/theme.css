@@ -10,16 +10,18 @@
  * 3. Any element can also carry `data-category` to use the accent of a given
  *    category, whatever the active one (place card, mixed lists…).
  *
- * Text colors are chosen for a WCAG AA contrast (≥ 4.5:1) on their background.
+ * Contrasts (WCAG AA): accent text ≥ 4.5:1 on cream and on muted grey,
+ * field borders ≥ 3:1 (non-text contrast). Category is never told by color
+ * alone: labels and icons always go with it (color vision deficiencies).
  */
 
 @theme {
   --color-cream: #f6f1ea;
   --color-ink: #2b2a28;
   --color-terracotta: #c65d3b;
-  --color-terracotta-strong: #b5532f;
+  --color-terracotta-strong: #a64a29;
   --color-olive: #6b7f4e;
-  --color-olive-strong: #5f7244;
+  --color-olive-strong: #566840;
 }
 
 html[data-category] {
@@ -29,7 +31,7 @@ html[data-category] {
   --card-foreground: #2b2a28;
   --popover: #fffdf9;
   --popover-foreground: #2b2a28;
-  --primary: #b5532f;
+  --primary: #a64a29;
   --primary-foreground: #fffdf9;
   --secondary: #ede5d9;
   --secondary-foreground: #2b2a28;
@@ -39,25 +41,25 @@ html[data-category] {
   --accent-foreground: #2b2a28;
   --destructive: #b42318;
   --border: #e3d9cb;
-  --input: #d9cdbc;
-  --ring: #b5532f;
+  --input: #958875;
+  --ring: #a64a29;
 }
 
 html[data-category='stroll'] {
-  --primary: #5f7244;
-  --ring: #5f7244;
+  --primary: #566840;
+  --ring: #566840;
   --accent: #e6eadc;
 }
 
 /* Element-level accents (custom properties are inherited by children). */
 [data-category='food'] {
-  --primary: #b5532f;
-  --ring: #b5532f;
+  --primary: #a64a29;
+  --ring: #a64a29;
   --accent: #f1e3d6;
 }
 
 [data-category='stroll'] {
-  --primary: #5f7244;
-  --ring: #5f7244;
+  --primary: #566840;
+  --ring: #566840;
   --accent: #e6eadc;
 }

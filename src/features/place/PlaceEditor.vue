@@ -332,13 +332,12 @@ const inputClass =
         </div>
       </section>
 
-      <div role="radiogroup" aria-label="Catégorie" class="flex gap-2">
+      <div role="group" aria-label="Catégorie" class="flex gap-2">
         <button
           v-for="id in CATEGORIES"
           :key="id"
           type="button"
-          role="radio"
-          :aria-checked="category === id"
+          :aria-pressed="category === id"
           :data-category="id"
           class="flex flex-1 items-center justify-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium"
           :class="

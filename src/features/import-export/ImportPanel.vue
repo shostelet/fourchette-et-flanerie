@@ -195,13 +195,12 @@ function restart(): void {
             <strong>{{ place.name }}</strong> ressemble à
             <strong>{{ duplicateOf!.name }}</strong>, déjà enregistré.
           </p>
-          <div role="radiogroup" :aria-label="`Que faire de ${place.name} ?`" class="flex flex-wrap gap-1">
+          <div role="group" :aria-label="`Que faire de ${place.name} ?`" class="flex flex-wrap gap-1">
             <button
               v-for="{ value, label } in DECISION_OPTIONS"
               :key="value"
               type="button"
-              role="radio"
-              :aria-checked="(decisions[place.id] ?? 'skip') === value"
+              :aria-pressed="(decisions[place.id] ?? 'skip') === value"
               class="rounded-full border px-3 py-1 text-sm"
               :class="
                 (decisions[place.id] ?? 'skip') === value

@@ -53,13 +53,12 @@ function submit(): void {
 
     <div class="space-y-1">
       <span class="text-sm font-medium">Couleur</span>
-      <div role="radiogroup" aria-label="Couleur" class="flex flex-wrap items-center gap-2">
+      <div role="group" aria-label="Couleur" class="flex flex-wrap items-center gap-2">
         <button
           v-for="value in TAG_COLORS"
           :key="value"
           type="button"
-          role="radio"
-          :aria-checked="color.toLowerCase() === value"
+          :aria-pressed="color.toLowerCase() === value"
           :aria-label="value"
           class="size-8 rounded-full border-2 transition-transform"
           :class="color.toLowerCase() === value ? 'scale-110 border-foreground' : 'border-card'"

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { watch } from 'vue'
+import { useTemplateRef, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import FiltersPanel from '@/features/filters/FiltersPanel.vue'
 import AppHeader from '@/features/layout/AppHeader.vue'
 import MapCanvas from '@/features/map/MapCanvas.vue'
 import { useMapController } from '@/features/map/map-controller'
+import { usePanelFocus } from '@/composables/usePanelFocus'
 import SearchBar from '@/features/search/SearchBar.vue'
 import { useAppDataStore } from '@/stores/app-data'
 import { useFiltersStore } from '@/stores/filters'
@@ -14,6 +15,14 @@ const appData = useAppDataStore()
 const route = useRoute()
 const { panelOpen } = storeToRefs(useFiltersStore())
 const { setZen } = useMapController()
+const panels = useTemplateRef<HTMLElement>('panels')
+
+// Focus moves into panels and back; Escape closes the filters first, then the panel.
+usePanelFocus(panels, () => {
+  if (!panelOpen.value) return false
+  panelOpen.value = false
+  return true
+})
 
 watch(
   () => route.name,
@@ -36,7 +45,9 @@ watch(
         Chargement…
       </p>
       <!-- Overlays (menu, place detail…) are rendered on top of the map. -->
-      <RouterView />
+      <div ref="panels" class="contents">
+        <RouterView />
+      </div>
       <!-- Filters over the map (over the list, the list shows them itself) -->
       <FiltersPanel v-if="panelOpen && route.name === 'map'" />
     </main>

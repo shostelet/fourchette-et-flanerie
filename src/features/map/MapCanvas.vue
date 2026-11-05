@@ -64,6 +64,12 @@ onMounted(() => {
     center: [view.center.lng, view.center.lat],
     zoom: view.zoom,
     attributionControl: false,
+    // French labels for what MapLibre exposes to screen readers.
+    locale: {
+      'Map.Title': 'Carte des lieux',
+      'AttributionControl.ToggleAttribution': 'Afficher ou masquer les crédits de la carte',
+      'Marker.Title': 'Lieu',
+    },
     // A flat, north-up map: simpler on a phone.
     dragRotate: false,
     pitchWithRotate: false,

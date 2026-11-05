@@ -21,7 +21,7 @@ const chip = (selected: boolean) =>
 
 <template>
   <div
-    role="radiogroup"
+    role="group"
     :aria-label="label"
     class="flex gap-1"
     :class="wrap ? 'flex-wrap' : 'overflow-x-auto pb-1'"
@@ -29,8 +29,7 @@ const chip = (selected: boolean) =>
     <button
       v-if="allowNone"
       type="button"
-      role="radio"
-      :aria-checked="!model"
+      :aria-pressed="!model"
       aria-label="Aucune icône"
       title="Aucune icône"
       class="flex size-10 shrink-0 items-center justify-center rounded-full border text-xs"
@@ -43,8 +42,7 @@ const chip = (selected: boolean) =>
       v-for="option in options"
       :key="option.icon"
       type="button"
-      role="radio"
-      :aria-checked="model === option.icon"
+      :aria-pressed="model === option.icon"
       :aria-label="option.label"
       :title="option.label"
       class="flex size-10 shrink-0 items-center justify-center rounded-full border"

@@ -15,13 +15,12 @@ function select(value: Rating): void {
 <template>
   <div class="space-y-1">
     <p class="text-sm font-medium">{{ label }}</p>
-    <div role="radiogroup" :aria-label="label" class="flex gap-1">
+    <div role="group" :aria-label="label" class="flex gap-1">
       <button
         v-for="face in RATING_FACES"
         :key="face.value"
         type="button"
-        role="radio"
-        :aria-checked="model === face.value"
+        :aria-pressed="model === face.value"
         :aria-label="face.label"
         :title="face.label"
         class="flex size-11 items-center justify-center rounded-full transition"

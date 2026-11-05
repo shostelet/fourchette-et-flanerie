@@ -57,13 +57,12 @@ const chip = (selected: boolean) =>
       </header>
 
       <div class="min-h-0 space-y-5 overflow-y-auto p-4">
-        <div role="radiogroup" aria-label="Statut" class="flex rounded-full bg-muted p-1">
+        <div role="group" aria-label="Statut" class="flex rounded-full bg-muted p-1">
           <button
             v-for="option in STATUS_OPTIONS"
             :key="option.value"
             type="button"
-            role="radio"
-            :aria-checked="status === option.value"
+            :aria-pressed="status === option.value"
             class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors"
             :class="
               status === option.value

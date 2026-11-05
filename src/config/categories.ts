@@ -18,14 +18,14 @@ export const CATEGORY_DEFINITIONS: Record<Category, CategoryDefinition> = {
     label: 'Fourchette',
     icon: 'utensils-crossed',
     defaultPlaceIcon: 'utensils',
-    color: '#b5532f',
+    color: '#a64a29',
   },
   stroll: {
     id: 'stroll',
     label: 'Flânerie',
     icon: 'footprints',
     defaultPlaceIcon: 'shopping-bag',
-    color: '#5f7244',
+    color: '#566840',
   },
 }
 

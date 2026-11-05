@@ -12,7 +12,7 @@ const size = computed(() => Math.min(56, 32 + Math.log2(props.count) * 5))
   <button
     type="button"
     :aria-label="`${count} lieux ici : zoomer`"
-    class="flex cursor-pointer items-center justify-center rounded-full border-[3px] border-card bg-primary text-sm font-semibold text-primary-foreground shadow-md ring-4 ring-primary/25 transition-transform hover:scale-110"
+    class="flex cursor-pointer items-center justify-center rounded-full border-[3px] border-card bg-primary text-sm font-semibold text-primary-foreground shadow-md ring-4 ring-primary/25 transition-transform hover:scale-110 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ink"
     :style="{ width: `${size}px`, height: `${size}px` }"
   >
     {{ count }}
