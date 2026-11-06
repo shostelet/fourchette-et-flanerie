@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import MapView from '@/views/MapView.vue'
-import { EXIT_GUARD_ROUTE, exitGuardBeforeEnter } from './exit-guard'
+import { EXIT_GUARD_ROUTE } from './exit-guard'
 
 /**
  * Hash history ("/#/settings") works on GitHub Pages without server config.
@@ -80,7 +80,6 @@ const router = createRouter({
       path: '/start',
       name: EXIT_GUARD_ROUTE,
       component: MapView,
-      beforeEnter: exitGuardBeforeEnter,
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
