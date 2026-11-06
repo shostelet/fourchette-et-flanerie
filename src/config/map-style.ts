@@ -16,7 +16,9 @@ const WARM = {
   building: '#e4dccf',
 }
 
-type Paint = { layer: string; property: string; value: string }
+/** The only paint properties recolored (MapLibre checks property names). */
+type ColorProperty = 'background-color' | 'fill-color' | 'line-color'
+type Paint = { layer: string; property: ColorProperty; value: string }
 
 export function warmUpMapStyle(map: MapLibreMap): void {
   if (!WARM_MAP_STYLE) return
