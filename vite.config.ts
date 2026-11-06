@@ -34,7 +34,7 @@ export default defineConfig(({ command, isPreview }) => ({
         short_name: 'Fourchette',
         description: 'Mes adresses à tester : restaurants, boutiques et flâneries.',
         lang: 'fr',
-        start_url: '.',
+        start_url: './?app=1',
         scope: '.',
         display: 'standalone',
         orientation: 'portrait',

@@ -18,8 +18,12 @@ const EXIT_HINT = 'Pour quitter l’appli, utilise le geste Accueil.'
 
 let installing = false
 
+/** Marker in the manifest's start_url: the app was launched from its icon. */
+const LAUNCHED_AS_APP = new URLSearchParams(window.location.search).has('app')
+
 export function isStandalone(): boolean {
   return (
+    LAUNCHED_AS_APP ||
     window.matchMedia?.('(display-mode: standalone)').matches ||
     (navigator as Navigator & { standalone?: boolean }).standalone === true
   )
