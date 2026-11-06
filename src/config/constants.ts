@@ -25,3 +25,6 @@ export const FALLBACK_MAP_ZOOM = 12
  * Other styles: "liberty", "bright".
  */
 export const MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
+
+/** OpenFreeMap's dark style, for the dark theme. */
+export const MAP_STYLE_DARK_URL = 'https://tiles.openfreemap.org/styles/dark'

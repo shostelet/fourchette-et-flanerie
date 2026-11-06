@@ -70,3 +70,50 @@ html[data-category='stroll'] {
   --ring: #566840;
   --accent: #e6eadc;
 }
+
+/*
+ * Dark theme (class "dark" on <html>, set by App.vue and early in index.html).
+ * Same contrast rules: text ≥ 4.5:1 on every background, field borders ≥ 3:1.
+ * Ink and cream swap, so "ink" elements (home pin, toasts) stay visible.
+ */
+html.dark[data-category] {
+  color-scheme: dark;
+  --background: #1c1a18;
+  --foreground: #efe7dc;
+  --card: #262320;
+  --card-foreground: #efe7dc;
+  --popover: #262320;
+  --popover-foreground: #efe7dc;
+  --primary: #e58a65;
+  --primary-foreground: #1c1a18;
+  --secondary: #302c28;
+  --secondary-foreground: #efe7dc;
+  --muted: #302c28;
+  --muted-foreground: #b3a99c;
+  --accent: #3d2b22;
+  --accent-foreground: #efe7dc;
+  --destructive: #f2836f;
+  --border: #3a352f;
+  --input: #7a6f62;
+  --ring: #e58a65;
+  --color-ink: #efe7dc;
+  --color-cream: #1c1a18;
+}
+
+html.dark[data-category='stroll'] {
+  --primary: #a9bf86;
+  --ring: #a9bf86;
+  --accent: #2e3526;
+}
+
+html.dark [data-category='food'] {
+  --primary: #e58a65;
+  --ring: #e58a65;
+  --accent: #3d2b22;
+}
+
+html.dark [data-category='stroll'] {
+  --primary: #a9bf86;
+  --ring: #a9bf86;
+  --accent: #2e3526;
+}

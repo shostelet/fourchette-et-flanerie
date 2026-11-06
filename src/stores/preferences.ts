@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DEFAULT_CATEGORY } from '@/config/categories'
 import { isMapViewFresh, type MapView } from '@/domain/map-view'
 import { CATEGORIES, type Category } from '@/domain/models'
@@ -7,6 +7,8 @@ import { TRAVEL_MODES, type TravelMode } from '@/domain/routing'
 import { readJson, writeJson } from '@/utils/local-storage'
 
 export type PlaceViewMode = 'compact' | 'expanded'
+export type ThemeChoice = 'system' | 'light' | 'dark'
+const THEMES: readonly ThemeChoice[] = ['system', 'light', 'dark']
 
 /**
  * Device-only preferences, kept in localStorage and never exported:
@@ -34,6 +36,21 @@ export const usePreferencesStore = defineStore('preferences', () => {
   )
   watch(travelMode, (value) => writeJson('travelMode', value))
 
+  /** Light or dark theme; "system" follows the phone's setting. */
+  const storedTheme = readJson<string>('theme', 'system')
+  const theme = ref<ThemeChoice>(
+    THEMES.includes(storedTheme as ThemeChoice) ? (storedTheme as ThemeChoice) : 'system',
+  )
+  watch(theme, (value) => writeJson('theme', value))
+
+  const systemDark = ref(false)
+  const darkQuery = globalThis.matchMedia?.('(prefers-color-scheme: dark)')
+  if (darkQuery) {
+    systemDark.value = darkQuery.matches
+    darkQuery.addEventListener('change', (event) => (systemDark.value = event.matches))
+  }
+  const isDark = computed(() => theme.value === 'dark' || (theme.value === 'system' && systemDark.value))
+
   /** Group nearby places into clusters when zoomed out. */
   const clusterMarkers = ref(readJson<boolean>('clusterMarkers', true) !== false)
   watch(clusterMarkers, (value) => writeJson('clusterMarkers', value))
@@ -55,6 +72,8 @@ export const usePreferencesStore = defineStore('preferences', () => {
     placeView,
     travelMode,
     clusterMarkers,
+    theme,
+    isDark,
     lastMapView,
     saveMapView,
     restorableMapView,

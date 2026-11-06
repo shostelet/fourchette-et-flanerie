@@ -6,6 +6,17 @@
     <title>Fourchette &amp; Flânerie</title>
     <meta name="description" content="Mes adresses à tester : restaurants, boutiques et flâneries." />
     <meta name="theme-color" content="#fffdf9" />
+    <script>
+      // Dark theme before the first paint, same rule as the app (src/stores/preferences.ts):
+      // the saved choice, otherwise the phone's setting. No cream flash on a dark phone.
+      try {
+        var theme = JSON.parse(localStorage.getItem('ff:theme') || '"system"')
+        if (theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#262320')
+        }
+      } catch (error) {}
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!--
@@ -26,6 +37,13 @@
         color: #2b2a28;
         font-family: system-ui, sans-serif;
         transition: opacity 250ms ease-out;
+      }
+      html.dark body {
+        background-color: #1c1a18 !important;
+      }
+      html.dark #splash {
+        background: #1c1a18;
+        color: #efe7dc;
       }
       #splash.splash-hidden {
         opacity: 0;

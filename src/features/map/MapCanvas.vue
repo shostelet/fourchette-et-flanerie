@@ -13,6 +13,7 @@ import {
   DEFAULT_MAP_ZOOM,
   FALLBACK_MAP_CENTER,
   FALLBACK_MAP_ZOOM,
+  MAP_STYLE_DARK_URL,
   MAP_STYLE_URL,
 } from '@/config/constants'
 import type { GeoPoint, Home, Place } from '@/domain/models'
@@ -30,7 +31,7 @@ import UserLocationDot from './UserLocationDot.vue'
 import { useMapController, type MapFocus, type MapRoute } from './map-controller'
 import { useMapMarkers } from './useMapMarkers'
 import { hideSplash } from '@/utils/splash'
-import { warmUpMapStyle } from '@/config/map-style'
+import { warmUpDarkMapStyle, warmUpMapStyle } from '@/config/map-style'
 
 // MapLibre parses tiles in a Web Worker; Vite needs to know where it is.
 setWorkerUrl(workerUrl)
@@ -61,7 +62,7 @@ onMounted(() => {
   const view = initialView()
   const map = new MapLibreMap({
     container: container.value!,
-    style: MAP_STYLE_URL,
+    style: styleUrl(),
     center: [view.center.lng, view.center.lat],
     zoom: view.zoom,
     attributionControl: false,
@@ -92,33 +93,52 @@ onMounted(() => {
   })
 
   // Route line, below the markers (which are HTML elements on top of the map).
-  map.on('load', () => {
-    // Data is loaded (the map waits for it) and the map is drawn: the app is ready.
-    hideSplash()
-    warmUpMapStyle(map)
-    map.addSource(ROUTE_SOURCE, { type: 'geojson', data: routeData(controller.route.value) })
-    map.addLayer({
-      id: 'route-casing',
-      type: 'line',
-      source: ROUTE_SOURCE,
-      layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': '#ffffff', 'line-width': 8, 'line-opacity': 0.9 },
-    })
-    map.addLayer({
-      id: 'route-line',
-      type: 'line',
-      source: ROUTE_SOURCE,
-      layout: { 'line-join': 'round', 'line-cap': 'round' },
-      paint: { 'line-color': ['get', 'color'], 'line-width': 4.5 },
-    })
+  // Data is loaded (the map waits for it) and the map is drawn: the app is ready.
+  map.once('load', hideSplash)
+
+  // Runs for the first style and again after each theme switch (setStyle).
+  map.on('style.load', () => {
+    if (preferences.isDark) warmUpDarkMapStyle(map)
+    else warmUpMapStyle(map)
+    addRouteLayers(map)
   })
 
   controller.attach(map)
 })
 
+// Light or dark map, following the theme.
+function styleUrl(): string {
+  return preferences.isDark ? MAP_STYLE_DARK_URL : MAP_STYLE_URL
+}
+
+watch(
+  () => preferences.isDark,
+  () => controller.map.value?.setStyle(styleUrl(), { diff: false }),
+)
+
 // --- Route -----------------------------------------------------------------
 
 const ROUTE_SOURCE = 'route'
+
+/** Route line, below the markers (which are HTML elements on top of the map). */
+function addRouteLayers(map: MapLibreMap): void {
+  map.addSource(ROUTE_SOURCE, { type: 'geojson', data: routeData(controller.route.value) })
+  map.addLayer({
+    id: 'route-casing',
+    type: 'line',
+    source: ROUTE_SOURCE,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    // Contrasting outline: white on the light map, black on the dark one.
+    paint: { 'line-color': preferences.isDark ? '#000000' : '#ffffff', 'line-width': 8, 'line-opacity': 0.8 },
+  })
+  map.addLayer({
+    id: 'route-line',
+    type: 'line',
+    source: ROUTE_SOURCE,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': 4.5 },
+  })
+}
 
 function routeData(route: MapRoute | undefined): FeatureCollection {
   return {

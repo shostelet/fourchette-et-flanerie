@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Bike, Footprints, LoaderCircle, Route } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
-import { computed, toRef, type Component } from 'vue'
+import { computed, nextTick, ref, toRef, useTemplateRef, watch, type Component } from 'vue'
 import { formatDistance } from '@/domain/geocoding'
 import type { GeoPoint } from '@/domain/models'
 import { formatDuration, TRAVEL_MODES, type TravelMode } from '@/domain/routing'
@@ -21,8 +21,23 @@ const props = withDefaults(
   { allowHomeOrigin: true },
 )
 
+// The line takes the accent color really displayed around this summary
+// (category, light or dark theme, home): read from the CSS, with the prop as fallback.
+const root = useTemplateRef<HTMLElement>('root')
+const lineColor = ref(props.color)
+const { isDark } = storeToRefs(usePreferencesStore())
+watch(
+  [root, isDark, () => props.color],
+  async () => {
+    await nextTick()
+    const accent = root.value ? getComputedStyle(root.value).getPropertyValue('--primary').trim() : ''
+    lineColor.value = accent || props.color
+  },
+  { immediate: true, flush: 'post' },
+)
+
 const { origin, states, travelMode } = useTravelRoutes(toRef(props, 'destination'), {
-  color: toRef(props, 'color'),
+  color: lineColor,
   allowHomeOrigin: props.allowHomeOrigin,
 })
 const { zen, setZen } = useMapController()
@@ -60,7 +75,7 @@ function toggleRouteMode(): void {
 </script>
 
 <template>
-  <div v-if="origin" class="space-y-1">
+  <div v-if="origin" ref="root" class="space-y-1">
     <div class="flex flex-wrap items-center gap-1.5">
       <button
         v-for="chip in chips"

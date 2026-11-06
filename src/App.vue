@@ -9,9 +9,16 @@ import { hideSplash } from '@/utils/splash'
 const appData = useAppDataStore()
 const preferences = usePreferencesStore()
 
-// Drives the accent color of the theme (see assets/theme.css).
+// Drives the accent color and the light/dark theme (see assets/theme.css).
 watchEffect(() => {
-  document.documentElement.dataset.category = preferences.activeCategory
+  const root = document.documentElement
+  root.dataset.category = preferences.activeCategory
+  root.classList.toggle('dark', preferences.isDark)
+  // Status bar color of the phone, in tune with the header.
+  document.querySelector('meta[name="theme-color"]')?.setAttribute(
+    'content',
+    preferences.isDark ? '#262320' : '#fffdf9',
+  )
 })
 
 onMounted(() => {

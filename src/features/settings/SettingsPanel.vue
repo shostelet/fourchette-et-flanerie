@@ -21,7 +21,7 @@ import { useImportExport } from '@/features/import-export/useImportExport'
 import { needsReview } from '@/domain/review'
 import { useAppDataStore } from '@/stores/app-data'
 import { usePlacesStore } from '@/stores/places'
-import { usePreferencesStore } from '@/stores/preferences'
+import { usePreferencesStore, type ThemeChoice } from '@/stores/preferences'
 import { seedSampleData } from './dev-seed'
 
 const close = useCloseOverlay()
@@ -30,7 +30,13 @@ const { exportAll } = useImportExport()
 const toast = useToast()
 const busy = ref(false)
 const places = usePlacesStore()
-const { clusterMarkers } = storeToRefs(usePreferencesStore())
+const { clusterMarkers, theme } = storeToRefs(usePreferencesStore())
+
+const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
+  { value: 'system', label: 'Automatique' },
+  { value: 'light', label: 'Clair' },
+  { value: 'dark', label: 'Sombre' },
+]
 const toReviewCount = computed(() => places.items.filter(needsReview).length)
 
 
@@ -65,7 +71,7 @@ function wipe(): void {
 
 <template>
   <div class="absolute inset-0 z-20 flex">
-    <div class="absolute inset-0 bg-ink/30" aria-hidden="true" @click="close" />
+    <div class="absolute inset-0 bg-black/40" aria-hidden="true" @click="close" />
     <nav
       aria-label="Menu"
       class="relative flex h-full w-80 max-w-[85%] flex-col gap-4 overflow-y-auto bg-card p-4 shadow-xl"
@@ -124,6 +130,26 @@ function wipe(): void {
 
       <section class="space-y-2 border-t border-border pt-4">
         <h3 class="text-sm font-semibold text-muted-foreground">Affichage</h3>
+        <div class="space-y-1 px-3 py-1">
+          <span class="block">Thème</span>
+          <div role="group" aria-label="Thème" class="flex rounded-full bg-muted p-1">
+            <button
+              v-for="option in THEME_OPTIONS"
+              :key="option.value"
+              type="button"
+              :aria-pressed="theme === option.value"
+              class="flex-1 rounded-full px-2 py-1 text-sm font-medium transition-colors"
+              :class="
+                theme === option.value
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              "
+              @click="theme = option.value"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
         <label class="flex items-center justify-between gap-3 px-3 py-1">
           <span>Regrouper les lieux au dézoom</span>
           <input v-model="clusterMarkers" type="checkbox" class="size-5 accent-primary" />
