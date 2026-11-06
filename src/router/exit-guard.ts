@@ -3,7 +3,7 @@ import { useToast } from '@/composables/useToast'
 import { useFiltersStore } from '@/stores/filters'
 
 /**
- * Prevents the back gesture from closing the installed app.
+ * Prevents the back gesture from closing the installed app (see installExitGuard).
  *
  * Closing an installed web app with "back" is unreliable (Firefox for
  * Android may keep an empty, black window). So in the installed app, an
@@ -37,14 +37,22 @@ export function launchInfo(): string {
   const details = [
     `marqueur ${LAUNCHED_AS_APP ? 'oui' : 'non'}`,
     `standalone ${DISPLAY_STANDALONE ? 'oui' : 'non'}`,
-    `protection ${guardInstalled ? 'active' : 'inactive'}`,
+    `protection ${guardInstalled ? 'active' : isStandalone() ? 'au premier toucher' : 'inactive'}`,
   ]
   return `${mode} (${details.join(', ')})`
 }
 
-/** Call once the router is ready, before mounting the app. */
-export async function installExitGuard(router: Router): Promise<void> {
-  if (!isStandalone() || router.currentRoute.value.name !== 'map') return
+/**
+ * Call once the router is ready.
+ *
+ * Browsers skip, on "back", history entries the user never interacted with
+ * (protection against back-button hijacking). So the guard can't be created
+ * at startup: it waits for the first touch or key press on the map. The entry
+ * the user just interacted with becomes the guard, and the map is pushed on
+ * top of it; that entry is then never skipped.
+ */
+export function installExitGuard(router: Router): void {
+  if (!isStandalone()) return
 
   // Back on the guard entry: put the map back on top of it.
   router.afterEach((to, from) => {
@@ -59,7 +67,23 @@ export async function installExitGuard(router: Router): Promise<void> {
     void router.push({ name: 'map' })
   })
 
-  await router.replace({ name: EXIT_GUARD_ROUTE })
-  await router.push({ name: 'map' })
-  guardInstalled = true
+  let installing = false
+  const events = ['pointerdown', 'keydown'] as const
+
+  async function onFirstInteraction(): Promise<void> {
+    if (installing || guardInstalled || router.currentRoute.value.name !== 'map') return
+    installing = true
+    try {
+      // Same history slot (the one just interacted with), now the guard…
+      await router.replace({ name: EXIT_GUARD_ROUTE })
+      // …and the map on top of it.
+      await router.push({ name: 'map' })
+      guardInstalled = true
+      events.forEach((type) => window.removeEventListener(type, onFirstInteraction, true))
+    } finally {
+      installing = false
+    }
+  }
+
+  events.forEach((type) => window.addEventListener(type, onFirstInteraction, true))
 }
