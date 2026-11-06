@@ -24,6 +24,8 @@ import { usePlacesStore } from '@/stores/places'
 import { usePreferencesStore, type ThemeChoice } from '@/stores/preferences'
 import { seedSampleData } from './dev-seed'
 
+const BUILD_DATE = __BUILD_DATE__
+
 const close = useCloseOverlay()
 const appData = useAppDataStore()
 const { exportAll } = useImportExport()
@@ -38,7 +40,6 @@ const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: 'dark', label: 'Sombre' },
 ]
 const toReviewCount = computed(() => places.items.filter(needsReview).length)
-
 
 const itemClass =
   'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
@@ -170,6 +171,9 @@ function wipe(): void {
           Effacer toutes les données locales
         </Button>
       </section>
+      <p class="text-center text-xs text-muted-foreground">
+        Version du {{ new Date(BUILD_DATE).toLocaleString('fr-FR') }}
+      </p>
     </nav>
   </div>
 </template>

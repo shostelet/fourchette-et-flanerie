@@ -17,6 +17,10 @@ const THEME = {
 // https://vite.dev/config/
 export default defineConfig(({ command, isPreview }) => ({
   base: command === 'build' || isPreview ? PAGES_BASE : '/',
+  define: {
+    // Shown at the bottom of the menu, to check which version is running.
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     vue(),
     vueDevTools(),
