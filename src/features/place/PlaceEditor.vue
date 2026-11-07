@@ -111,6 +111,9 @@ if (fromSearch) {
   applyResult(fromSearch)
   mode.value = 'form'
 }
+// Nothing found in the search: the typed text becomes the name, the pin is
+// placed by hand (the address then comes from the pin).
+if (isNew.value && !fromSearch) name.value = useSearchStore().takePendingName() ?? ''
 const { finishChild } = useOverlay()
 
 // Unknown place (wrong URL, deleted…): back to the map.

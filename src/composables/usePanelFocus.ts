@@ -25,12 +25,17 @@ export function usePanelFocus(panel: Ref<HTMLElement | null | undefined>, onEsca
         opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
       }
       await nextTick()
+      // Typing in a text field outside the panels (the search bar) opened it:
+      // moving the focus would close the phone's keyboard mid-word. The panel
+      // announces its content itself (aria-live).
+      if (isPanel && isTextFieldOutside(panel.value)) return
       if (isPanel) {
         const target = panel.value?.querySelector<HTMLElement>(FOCUSABLE)
         if (target?.tagName === 'H2') target.tabIndex = -1
         target?.focus({ preventScroll: true })
-      } else if (opener?.isConnected) {
-        opener.focus({ preventScroll: true })
+      } else {
+        // Not back into a text field: that would pop the phone's keyboard up.
+        if (opener?.isConnected && !isTextField(opener)) opener.focus({ preventScroll: true })
         opener = null
       }
     },
@@ -46,4 +51,14 @@ export function usePanelFocus(panel: Ref<HTMLElement | null | undefined>, onEsca
 
   onMounted(() => window.addEventListener('keydown', onKeydown))
   onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+}
+
+function isTextField(element: Element | null): element is HTMLInputElement | HTMLTextAreaElement {
+  if (element instanceof HTMLTextAreaElement) return true
+  return element instanceof HTMLInputElement && ['text', 'search'].includes(element.type)
+}
+
+function isTextFieldOutside(panel: HTMLElement | null | undefined): boolean {
+  const active = document.activeElement
+  return isTextField(active) && !panel?.contains(active)
 }

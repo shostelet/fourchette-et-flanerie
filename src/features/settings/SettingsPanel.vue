@@ -23,9 +23,6 @@ import { useAppDataStore } from '@/stores/app-data'
 import { usePlacesStore } from '@/stores/places'
 import { usePreferencesStore, type ThemeChoice } from '@/stores/preferences'
 import { seedSampleData } from './dev-seed'
-import { launchInfo } from '@/router/exit-guard'
-
-const LAUNCH_INFO = launchInfo()
 
 const BUILD_DATE = __BUILD_DATE__
 
@@ -177,7 +174,6 @@ function wipe(): void {
       <p class="text-center text-xs text-muted-foreground">
         Version du {{ new Date(BUILD_DATE).toLocaleString('fr-FR') }}
       </p>
-      <p class="text-center text-xs text-muted-foreground">{{ LAUNCH_INFO }}</p>
     </nav>
   </div>
 </template>

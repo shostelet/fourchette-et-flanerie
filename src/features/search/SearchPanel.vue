@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { LoaderCircle, MapPinPlus, RotateCw, X } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 import AppIcon from '@/components/common/AppIcon.vue'
 import { Button } from '@/components/ui/button'
 import { useOverlay } from '@/composables/useOverlay'
@@ -37,6 +38,22 @@ function addNew(result: GeoResult): void {
   overlay.openChild({ name: 'place-new' })
 }
 
+// Not in the results (e.g. a brand new place): create it by hand with the typed name.
+function addManually(): void {
+  search.pendingName = query.value.trim()
+  overlay.openChild({ name: 'place-new' })
+}
+
+/** Read by screen readers when the results change (the focus stays in the search bar). */
+const announcement = computed(() => {
+  if (!query.value.trim()) return ''
+  const saved = `${known.value.length} adresse${known.value.length > 1 ? 's' : ''} enregistrée${known.value.length > 1 ? 's' : ''}`
+  if (status.value === 'loading') return `${saved}, recherche de nouvelles adresses…`
+  if (status.value !== 'done') return saved
+  const fresh = newResults.value.length
+  return `${saved}, ${fresh} nouvelle${fresh > 1 ? 's' : ''} adresse${fresh > 1 ? 's' : ''}`
+})
+
 function closeSearch(): void {
   search.clear()
   overlay.close()
@@ -50,6 +67,7 @@ const row =
   <section aria-label="Résultats de recherche" class="absolute inset-0 z-20 flex flex-col bg-background">
     <header class="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-1">
       <h2 class="text-sm font-semibold text-muted-foreground">Recherche</h2>
+      <p class="sr-only" aria-live="polite">{{ announcement }}</p>
       <Button variant="ghost" size="icon" class="rounded-full" aria-label="Fermer la recherche" @click="closeSearch">
         <X />
       </Button>
@@ -138,6 +156,21 @@ const row =
             </button>
           </li>
         </ul>
+      </section>
+
+      <!-- Not found: create it by hand (the address will come from the pin) -->
+      <section v-if="status !== 'loading'" class="space-y-1 border-t border-border pt-3">
+        <button type="button" :class="row" @click="addManually">
+          <span
+            class="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashed border-muted-foreground text-muted-foreground"
+          >
+            <MapPinPlus class="size-4" aria-hidden="true" />
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="block truncate font-medium">Créer « {{ query.trim() }} »</span>
+            <span class="block text-sm text-muted-foreground">Pas dans la liste ? Tu le places sur la carte.</span>
+          </span>
+        </button>
       </section>
 
       <p class="px-3 text-xs text-muted-foreground">

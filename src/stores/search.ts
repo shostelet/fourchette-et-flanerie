@@ -29,6 +29,8 @@ export const useSearchStore = defineStore('search', () => {
 
   /** A new address picked in the results, waiting for the "add a place" form. */
   const pendingResult = shallowRef<GeoResult>()
+  /** A name typed in the search with no matching result: a place created by hand. */
+  const pendingName = ref<string>()
 
   const known = computed<Place[]>(() => {
     if (!normalizeText(query.value)) return []
@@ -66,6 +68,13 @@ export const useSearchStore = defineStore('search', () => {
     return result
   }
 
+  /** Hands the typed name over to the form, which takes it once. */
+  function takePendingName(): string | undefined {
+    const name = pendingName.value
+    pendingName.value = undefined
+    return name
+  }
+
   return {
     query,
     known,
@@ -74,8 +83,10 @@ export const useSearchStore = defineStore('search', () => {
     error: remote.error,
     retry: remote.retry,
     pendingResult,
+    pendingName,
     distanceTo,
     clear,
     takePendingResult,
+    takePendingName,
   }
 })
