@@ -1,8 +1,10 @@
-name: Deploy to GitHub Pages
+name: Front (GitHub Pages)
 
 on:
   push:
     branches: [main]
+    # Only when the front changes (the API has its own workflow).
+    paths: ["web/**", ".github/workflows/deploy.yml"]
   # Also allows a manual run from the "Actions" tab.
   workflow_dispatch:
 
@@ -19,6 +21,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v5
 
@@ -48,7 +53,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: dist
+          path: web/dist
 
   deploy:
     needs: build

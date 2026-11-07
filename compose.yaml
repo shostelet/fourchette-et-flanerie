@@ -1,0 +1,46 @@
+# Local development: PostgreSQL, the API (reloads on save) and Mailpit (catches e-mails).
+# Production will get its own file at step 9 (Caddy, no Mailpit, no ports opened).
+name: fourchette
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: fourchette
+      POSTGRES_PASSWORD: fourchette
+      POSTGRES_DB: fourchette
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # Creates the test database on the first start.
+      - ./api/docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fourchette -d fourchette"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./api
+    environment:
+      FF_DATABASE_URL: postgresql+asyncpg://fourchette:fourchette@db:5432/fourchette
+      FF_ENVIRONMENT: development
+    # Development: reload on save, from the mounted source code.
+    command: ["uvicorn", "fourchette_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app/src"]
+    volumes:
+      - ./api/src:/app/src
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:8025:8025" # web interface
+      - "127.0.0.1:1025:1025" # SMTP
+
+volumes:
+  db-data:

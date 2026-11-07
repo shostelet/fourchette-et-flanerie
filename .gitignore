@@ -1,0 +1,4 @@
+# Exports Mapstr et Fourchette : jamais dans le dépôt
+private/
+.env
+.vite/
